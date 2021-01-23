@@ -23,7 +23,10 @@ def total_logprob(response):
     return sum(logprobs)
 
 
-def query(prompt, engine, attempts=3, delay=1, max_tokens=200):
+def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200):
+    if query
+
+
     if attempts < 1:
         raise TimeoutError
     try:

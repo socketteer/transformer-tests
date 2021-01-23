@@ -1,6 +1,7 @@
 import collections
 import csv
 import datetime
+import functools
 import itertools
 import json
 import logging
@@ -18,11 +19,6 @@ import numpy as np
 import pandas as pd
 
 
-def what_is_this_thing(thing):
-    print(f"What is this thing? It's a {type(thing)}!")
-    pprint(thing)
-
-
 def init_logs(logfile=None):
     if logfile is None:
         logfile = f"logs/{timestamp()}.log"
@@ -35,9 +31,23 @@ def init_logs(logfile=None):
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
+def what_is_this_thing(thing):
+    print(f"What is this thing? It's a {type(thing)}!")
+    pprint(thing)
+
+
+def print_array(arr, name="array"):
+    print(f"Array {name}")
+    print(f"\tShape: {arr.shape}, Max: {np.max(arr)}, Min: {np.min(arr)}")
+    for line in np.array2string(arr).split("\n"):
+        print(f"\t\t{line}")
+    print()
+
+
 ################################################################################
 # Strings
 ################################################################################
+
 
 def datestamp():
     return datetime.date.today()
@@ -175,6 +185,19 @@ def merge_json_lists(directory):
 # Function decorators
 ################################################################################
 
+# Adds a dictionary of metadata to a function so they can be accessed as global variables under func.meta["key"]
+def metadata(func=None, **data):
+    if not func:
+        return functools.partial(metadata, **data)
+
+    @functools.wraps(func)
+    def f(*args, **kwargs):
+        func.meta = {**data}
+        return func(*args, **kwargs)
+
+    f.meta = {**data}
+    return f
+
 
 def retry(func=None, exception=Exception, n_tries=5, delay=0.1,
           backoff=2, logger=True, on_failure=None):
@@ -225,7 +248,7 @@ def retry(func=None, exception=Exception, n_tries=5, delay=0.1,
             on_failure=on_failure,
         )
 
-    @wraps(func)
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         ntries, ndelay = n_tries, delay
         exe = None
@@ -252,7 +275,7 @@ def retry(func=None, exception=Exception, n_tries=5, delay=0.1,
 
 
 def log(func, logger=logging.info):
-    @wraps(func)
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         logger(f"Calling function {f.__name__}\n\twith args: {args}\n\tkwargs: {kwargs}")
         returned = func(*args, **kwargs)
@@ -267,7 +290,17 @@ def log(func, logger=logging.info):
 ################################################################################
 
 
-# deduplicate a list without losing order
+# Clips a number between lower and upper bound, inclusive
+def clip_num(n, lower, upper):
+    return max(lower, min(n, upper))
+
+
+# Clips an index to the size of the array
+def index_clip(arr, i):
+    return arr[clip_num(i, 0, len(arr)-1)]
+
+
+# Deduplicate a list without losing order
 def dedupe(l):
     seen = set()
     return [e for e in l if not (e in seen or seen.add(e))]

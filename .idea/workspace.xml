@@ -2,38 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4ee7f252-d5a3-41f5-a399-0d2d74383299" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/benchmarks/triviaqa/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bleu/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/bleu/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bleu/prepare_results.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/bleu/prepare_results.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bleu/translate.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/bleu/translate.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/conditional.py" beforeDir="false" afterPath="$PROJECT_DIR$/conditional.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/content.txt" beforeDir="false" afterPath="$PROJECT_DIR$/examples/content.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example_response.txt" beforeDir="false" afterPath="$PROJECT_DIR$/examples/example_response.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/filter.txt" beforeDir="false" afterPath="$PROJECT_DIR$/examples/filter.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/debate/zero_sum.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gpt_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/gpt_util.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/preprompt.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/prompt.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/stats.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/stats_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/subtree.py" beforeDir="false" afterPath="$PROJECT_DIR$/subtree.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/examples/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/evaluation/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/evaluation/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/evaluation/evaluate_bidaf.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/evaluation/evaluate_bidaf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/evaluation/triviaqa_evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/evaluation/triviaqa_evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/samples/sample_predictions.json" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/samples/sample_predictions.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/samples/triviaqa_sample.json" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/samples/triviaqa_sample.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/utils/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/utils/convert_to_squad_format.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/utils/convert_to_squad_format.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/utils/dataset_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/utils/dataset_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/triviaqa/repo/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/triviaqa/repo/utils/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/util.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webqs/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarks/webqs/test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -46,10 +19,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="24" column="54" lean-forward="true" selection-start-line="24" selection-start-column="54" selection-end-line="24" selection-end-column="54" />
+            <state relative-caret-position="1007">
+              <caret line="261" column="35" selection-start-line="261" selection-start-column="35" selection-end-line="261" selection-end-column="35" />
               <folding>
-                <element signature="e#0#11#0" expanded="true" />
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -58,10 +31,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
+            <state relative-caret-position="30">
+              <caret line="2" column="11" lean-forward="true" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/debate/zero_sum.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="30">
+              <caret line="2" selection-start-line="2" selection-end-line="2" />
             </state>
           </provider>
         </entry>
@@ -81,7 +64,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/conditional.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="808">
+            <state relative-caret-position="913">
               <caret line="61" column="5" selection-start-line="61" selection-start-column="5" selection-end-line="61" selection-end-column="5" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
@@ -107,7 +90,7 @@
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
               <first_editor>
-                <caret column="7" selection-start-column="7" selection-end-column="7" />
+                <caret column="2" lean-forward="true" selection-start-column="2" selection-end-column="2" />
               </first_editor>
               <second_editor />
             </state>
@@ -127,8 +110,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gpt_util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="7" column="12" selection-start-line="7" selection-start-column="12" selection-end-line="7" selection-end-column="12" />
+            <state relative-caret-position="420">
+              <caret line="28" selection-start-line="28" selection-end-line="28" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -136,16 +119,19 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/content.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="22" selection-start-line="22" selection-end-line="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>np</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -157,25 +143,16 @@
         <option value="$PROJECT_DIR$/subtree.py" />
         <option value="$PROJECT_DIR$/stats.py" />
         <option value="$PROJECT_DIR$/conditional.py" />
-        <option value="$PROJECT_DIR$/util.py" />
-        <option value="$PROJECT_DIR$/gpt_util.py" />
         <option value="$PROJECT_DIR$/webqs/test.py" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/examples/test.py" />
+        <option value="$PROJECT_DIR$/debate/zero_sum.py" />
+        <option value="$PROJECT_DIR$/gpt_util.py" />
+        <option value="$PROJECT_DIR$/util.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectConfigurationFiles">
-    <option name="files">
-      <list>
-        <option value="$PROJECT_DIR$/.idea/transformer-tests.iml" />
-        <option value="$PROJECT_DIR$/.idea/misc.xml" />
-        <option value="$PROJECT_DIR$/.idea/modules.xml" />
-        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
-        <option value="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      </list>
-    </option>
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1280" />
+  <component name="ProjectFrameBounds">
     <option name="y" value="25" />
     <option name="width" value="1280" />
     <option name="height" value="1415" />
@@ -196,7 +173,7 @@
             <path>
               <item name="transformer-tests" type="b2602c69:ProjectViewProjectNode" />
               <item name="transformer-tests" type="462c0819:PsiDirectoryNode" />
-              <item name="benchmarks" type="462c0819:PsiDirectoryNode" />
+              <item name="examples" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -205,6 +182,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
@@ -239,26 +217,26 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1611432547809</updated>
-      <workItem from="1611432551852" duration="1870000" />
+      <workItem from="1611432551852" duration="3028000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1870000" />
+    <option name="totallyTimeSpent" value="3028000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="25" width="2560" height="1415" extended-state="6" />
+    <frame x="0" y="25" width="1280" height="1415" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10841938" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22051696" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Python Console" />
       <window_info anchor="bottom" id="Pylint" />
-      <window_info anchor="bottom" id="Terminal" />
+      <window_info active="true" anchor="bottom" id="Terminal" visible="true" weight="0.32953683" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
@@ -320,16 +298,6 @@
     <entry file="file://$PROJECT_DIR$/preprompt.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor>
-            <caret column="7" selection-start-column="7" selection-end-column="7" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/content.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
@@ -350,16 +318,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gpt_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="12" selection-start-line="7" selection-start-column="12" selection-end-line="7" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/benchmarks/webqs/test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="433">
@@ -370,9 +328,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/test.py">
+    <entry file="file://$PROJECT_DIR$/conditional.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
+        <state relative-caret-position="913">
+          <caret line="61" column="5" selection-start-line="61" selection-start-column="5" selection-end-line="61" selection-end-column="5" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -389,10 +348,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/conditional.py">
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor>
+            <caret column="2" lean-forward="true" selection-start-column="2" selection-end-column="2" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="808">
-          <caret line="61" column="5" selection-start-line="61" selection-start-column="5" selection-end-line="61" selection-end-column="5" />
+        <state relative-caret-position="30">
+          <caret line="2" column="11" lean-forward="true" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/debate/zero_sum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gpt_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" selection-start-line="28" selection-end-line="28" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -401,10 +387,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/util.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="24" column="54" lean-forward="true" selection-start-line="24" selection-start-column="54" selection-end-line="24" selection-end-column="54" />
+        <state relative-caret-position="1007">
+          <caret line="261" column="35" selection-start-line="261" selection-start-column="35" selection-end-line="261" selection-end-column="35" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
