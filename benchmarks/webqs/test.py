@@ -2,8 +2,8 @@ import os
 from pprint import pprint
 import random
 
-from gpt3.util import query
-from util.util import json_open, json_create, json_append_dict
+from gpt_util import query
+from util import json_open, json_create, json_append_dict
 
 
 # Official script
@@ -34,9 +34,6 @@ def computeF1(goldList, predictedList):
   if precision+recall>0:
     f1 = 2*recall*precision / (precision + recall)
   return (recall, precision, f1)
-
-
-
 
 
 def extract_question(d):
