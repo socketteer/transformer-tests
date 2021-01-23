@@ -92,6 +92,44 @@ class FString:
         return getattr(self.string, attr)
 
 
+# https://stackoverflow.com/questions/13734451/string-split-with-indices-in-python
+def split_indices(s):
+    """Splits a string on whitespaces and records the indices of each in the original string.
+    @:return generator((word, (start_idx, end_idx)), ...)
+    """
+    return ((m.group(0), (m.start(), m.end() - 1)) for m in re.finditer(r'\S+', s))
+
+
+def word_ngrams(s, n):
+    """Splits a string into ngram words"""
+    tokens = s.split()  # not a generator :(
+    ngram_seqs = form_ngrams(iter(tokens), n)
+    return (" ".join(ngram) for ngram in ngram_seqs)
+
+
+def word_ngrams_indices(s, n):
+    """Splits a string into pairs of (ngram words, their start/end indices)"""
+    tokens_with_indices = split_indices(s)
+
+    # Generator of ngrams of (word, idx_pairs)
+    # (
+    #   [(word, (start,end)), (word, (start, end))...],
+    #   [(word, (start, end)), ...],
+    #   ...
+    # )
+    ngram_seqs_with_indices = form_ngrams(tokens_with_indices, n)
+
+    # Generator of pairs of word and index ngrams
+    # (
+    #   ([word, word, ...], [(start,end), (start,end), ...]),
+    #   ...
+    # )
+    ngram_indices_pairs = (zip(*ngram_with_indices) for ngram_with_indices in ngram_seqs_with_indices)
+
+    # Generator of ( (word_ngram, (start, end)), (word_ngram, (start, end)), ...)
+    return ((" ".join(ngram_seq), (indices[0][0], indices[-1][1])) for ngram_seq, indices in ngram_indices_pairs)
+
+
 ################################################################################
 # I/O
 ################################################################################
@@ -329,6 +367,29 @@ def intersperse(lst, item):
     result = [item] * (len(lst) * 2 - 1)
     result[0::2] = lst
     return result
+
+
+# Implementation from nltk source
+# https://www.nltk.org/_modules/nltk/util.html
+def form_ngrams(sequence, n):
+    """Return the ngrams generated from a sequence of items, as an iterator. For example:
+        list(form_ngrams([1,2,3,4,5], 3))  =>  [(1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    """
+
+    history = []
+    while n > 1:
+        # PEP 479, prevent RuntimeError from being raised when StopIteration bubbles out of generator
+        try:
+            next_item = next(sequence)
+        except StopIteration:
+            # no more data, terminate the generator
+            return
+        history.append(next_item)
+        n -= 1
+    for item in sequence:
+        history.append(item)
+        yield tuple(history)
+        del history[0]
 
 
 # Apply a function recursively to all elements in nested lists. Doesn't work for numpy arrays...? :'(
