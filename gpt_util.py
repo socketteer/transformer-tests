@@ -1,9 +1,13 @@
 import os
 import time
+from collections import defaultdict
+from types import SimpleNamespace
 
 import openai
 from transformers import GPT2Tokenizer
 import math
+
+from util import metadata
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
@@ -26,7 +30,42 @@ def total_logprob(response):
     return sum(logprobs)
 
 
+def logit_mask(mask):
+    id_mask = {}
+    for token in mask:
+        token_id = tokenize([token])[0][0]
+        id_mask[token_id] = mask[token]
+    return id_mask
+
+
+@metadata(usage_count=defaultdict(int), override=defaultdict(lambda: False))
+def _request_limiter(engine):
+    limits = {
+        "ada": 5000,
+        "babbage": 1000,
+        "curie": 500,
+        "davinci": 100
+    }
+    _request_limiter.meta["usage_count"][engine] += 1
+
+    if (not _request_limiter.meta["override"]["engine"]
+            and _request_limiter.meta["usage_count"][engine] > limits.get(engine, 1000)):
+
+        resp = input(f"{engine} has been used {_request_limiter.meta['usage_count'][engine]} times.\n"
+                     f" Are you sure you want to continue and turn off limits? Type {engine} to resume:\n")
+        if resp.lower().strip() == engine:
+            _request_limiter.meta["override"]["engine"] = True
+        else:
+            print("STOPPING RESPONSE GENERATION. Quit the program or allow it to finish")
+            raise PermissionError(f"{engine} has run too many times: {_request_limiter.meta['usage_count'][engine]}")
+
+
 def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200):
+    try:
+        _request_limiter(engine)
+    except PermissionError as e:
+        return SimpleNamespace(choices=[defaultdict(int)])
+
     if attempts < 1:
         raise TimeoutError
     try:
