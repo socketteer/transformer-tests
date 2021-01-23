@@ -24,9 +24,6 @@ def total_logprob(response):
 
 
 def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200):
-    if query
-
-
     if attempts < 1:
         raise TimeoutError
     try:
