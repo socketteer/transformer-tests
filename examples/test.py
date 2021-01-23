@@ -4,7 +4,7 @@ import math
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
-f = open("gpt/prompt.txt", "r")
+f = open("examples/prompt.txt", "r")
 prompt = f.read()
 
 response = openai.Completion.create(
