@@ -81,4 +81,4 @@ As an example, you can pass `{"50256": -100}` to prevent the <|endoftext|> token
 ---
 ### Tips
 
-* Don't end prompts with a space character. This will cause unwanted behavior because tokensization groups spaces at the front of words. It is fine to end a prompt with newlines, tabs, etc.
+* Don't end prompts with a space character. This will cause unwanted behavior because tokenization groups spaces at the front of words. It is fine to end a prompt with newlines, tabs, etc.

@@ -27,6 +27,14 @@ def total_logprob(response):
     return sum(logprobs)
 
 
+def logit_mask(mask):
+    id_mask = {}
+    for token in mask:
+        token_id = tokenize([token])[0][0]
+        id_mask[token_id] = mask[token]
+    return id_mask
+
+
 @metadata(usage_count=defaultdict(int), override=defaultdict(lambda: False))
 def _request_limiter(engine):
     limits = {
