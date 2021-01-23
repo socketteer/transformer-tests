@@ -30,9 +30,9 @@ def total_logprob(response):
 @metadata(usage_count=defaultdict(int), override=defaultdict(lambda: False))
 def _request_limiter(engine):
     limits = {
-        "ada": 10000,
-        "babbage": 5000,
-        "curie": 1000,
+        "ada": 5000,
+        "babbage": 1000,
+        "curie": 500,
         "davinci": 100
     }
     _request_limiter.meta["usage_count"][engine] += 1
