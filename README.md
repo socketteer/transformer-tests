@@ -4,7 +4,7 @@
 
 **engine_id** string Required
 
-The ID of the engine to use for this request [davinci, curie, babbage, ada]
+The ID of the engine to use for this request (`davinci`, `curie`, `babbage`, `ada`, `curie-instruct-beta`, `davinci-instruct-beta`)
 
 ---
 **prompt** string or array
