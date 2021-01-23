@@ -57,20 +57,28 @@ def n_top_logprobs(preprompt, content, filter, n=5, quiet=0):
 
     return top
 
-f = open("preprompt.txt", "r")
-preprompt = f.read()[:-1]
-g = open("content.txt", "r")
-content = g.read()[:-1]
-h = open("filter.txt", "r")
-filter = h.read()[:-1]
 
-print('preprompt\n', preprompt)
-print('\ncontent\n', content)
-print('\nfilter\n', filter)
+def main():
+    f = open("preprompt.txt", "r")
+    preprompt = f.read()[:-1]
+    g = open("content.txt", "r")
+    content = g.read()[:-1]
+    h = open("filter.txt", "r")
+    filter = h.read()[:-1]
 
-top = n_top_logprobs(preprompt, content, filter, 10)
-print(top)
+    print('preprompt\n', preprompt)
+    print('\ncontent\n', content)
+    print('\nfilter\n', filter)
 
-for t in top:
-    print('\ncutoff: ', t['substring'][-100:])
-    print('logprob: ', t['logprob'])
+    top = n_top_logprobs(preprompt, content, filter, 10)
+    print(top)
+
+    for t in top:
+        print('\ncutoff: ', t['substring'][-100:])
+        print('logprob: ', t['logprob'])
+
+
+if __name__ == "__main__":
+    main()
+
+

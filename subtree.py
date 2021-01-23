@@ -1,13 +1,11 @@
 import openai
 import json
-from transformers import GPT2Tokenizer
-import math
 import os
 import numpy as np
 
-from gpt3.laria.gpt_util import logprobs_to_probs, tokenize
+from gpt_util import logprobs_to_probs, tokenize
 
-openai.api_key = = os.environ["OPENAI_API_KEY"]
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # TODO save metadata and make readable
 def generate_subtree(seed, branching_factor, branching_interval, depth,
@@ -149,20 +147,26 @@ def make_readable_tree(tree):
     return readable_tree
 
 
-f = open("prompt.txt", "r")
-prompt = f.read()
-print(prompt)
-# tree = generate_subtree(prompt, branching_factor=3,
-#                         branching_interval=10,
-#                         depth=5,
-#                         temperature=0.9,
-#                         engine='ada')
-# print_tree(tree)
-# # readable_tree = make_readable_tree(tree)
-#  tree_json = {'text': prompt,
-#               'children': readable_tree}
+def main():
+    f = open("prompt.txt", "r")
+    prompt = f.read()
+    print(prompt)
+    # tree = generate_subtree(prompt, branching_factor=3,
+    #                         branching_interval=10,
+    #                         depth=5,
+    #                         temperature=0.9,
+    #                         engine='ada')
+    # print_tree(tree)
+    # # readable_tree = make_readable_tree(tree)
+    #  tree_json = {'text': prompt,
+    #               'children': readable_tree}
 
-tree = adaptive_branch(prompt)
+    tree = adaptive_branch(prompt)
 
-with open('../../data/adaptive_ada_branch.json', 'w') as outfile:
-    json.dump(tree, outfile)
+    with open('../../data/adaptive_ada_branch.json', 'w') as outfile:
+        json.dump(tree, outfile)
+
+
+if __name__ == "__main__":
+    main()
+
