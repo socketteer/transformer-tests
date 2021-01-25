@@ -72,6 +72,7 @@ def query(prompt, engine="ada", temperature=0.0, attempts=3, delay=1, max_tokens
         time.sleep(delay)
         return query(prompt, engine, attempts=attempts-1, delay=delay*2)
 
+
 def query_yes_no(prompt, engine="ada", attempts=3, delay=1, max_tokens=1):
     if attempts < 1:
         raise TimeoutError
@@ -106,12 +107,6 @@ def query_yes_no(prompt, engine="ada", attempts=3, delay=1, max_tokens=1):
         last_token_probs = dict_logprobs_to_probs(last_token_logprobs)
         print(last_token_probs)
 
-<<<<<<< HEAD
-def main():
-    pass
-    # while True:
-    #     print(query("", "ada").choices[0]["text"])
-=======
         best_prob = 0
         result = "na"
         for key, prob in last_token_probs.items():
@@ -120,9 +115,6 @@ def main():
                     best_prob = prob
                     result = key.lower().replace(" ", "")
         return result
->>>>>>> 7b53470bf6e25a6bec7073f7881917f1622c4a05
-
-
 
 
     except Exception as e:
@@ -130,3 +122,11 @@ def main():
         print(e)
         time.sleep(delay)
         return query(prompt, engine, attempts=attempts-1, delay=delay*2)
+
+def main():
+    pass
+    # while True:
+    #     print(query("", "ada").choices[0]["text"])
+
+
+
