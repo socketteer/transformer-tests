@@ -4,17 +4,11 @@ from collections import defaultdict
 from types import SimpleNamespace
 
 import openai
-#from transformers import GPT2Tokenizer
 import math
 
 from util import metadata
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
-
-#
-# def tokenize(input):
-#     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-#     return tokenizer(input)['input_ids']
 
 
 def logprobs_to_probs(probs):
@@ -25,14 +19,6 @@ def total_logprob(response):
     logprobs = response['logprobs']['token_logprobs']
     logprobs = [i for i in logprobs if not math.isnan(i)]
     return sum(logprobs)
-
-
-def logit_mask(mask):
-    id_mask = {}
-    for token in mask:
-        token_id = tokenize([token])[0][0]
-        id_mask[token_id] = mask[token]
-    return id_mask
 
 
 @metadata(usage_count=defaultdict(int), override=defaultdict(lambda: False))
