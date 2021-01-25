@@ -3,7 +3,8 @@ import json
 import os
 import numpy as np
 
-from gpt_util import logprobs_to_probs, tokenize
+from gpt_util import logprobs_to_probs
+from tokenizer import tokenize
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 

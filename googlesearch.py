@@ -3,6 +3,7 @@ from functools import partial
 
 import openai
 import os
+import random
 from multiprocessing.pool import ThreadPool
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -96,6 +97,7 @@ def create_html(query, results):
         google_html += result_html
     return google_html
 
+
 def split_prompt_template(prompt, start_delimiter='{', end_delimiter='}'):
     parts = re.split(rf"{start_delimiter}", prompt)
     prompt_sections = []
@@ -107,8 +109,6 @@ def split_prompt_template(prompt, start_delimiter='{', end_delimiter='}'):
         prompt_sections.append(section[1])
 
     return prompt_sections, blanks
-
-    # while prompt is not None:
 
 
 def api_call(prompt, engine="curie", n=1, temperature=0.8, max_tokens=100, stop=["\""], mask=None):
@@ -149,10 +149,15 @@ def search_google(search_query, engine="curie", num_results=1):
     # print(prompt4)
     response4 = api_call(prompt=prompt4, engine=engine)
     search_results['preview'] = response4.choices[0]["text"]
-    prompt5 = prompt4 + search_results['preview'] + prompt_sections[5]
+    random_month = random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+    random_day = random.randint(1, 30)
+    prompt5 = prompt4 + search_results['preview'] + prompt_sections[5] + ' ' + \
+              random_month + ' ' + str(random_day) + ','
 
     response5 = api_call(prompt=prompt5, engine=engine, stop=[".", "\n", ","])
-    search_results['date'] = response5.choices[0]["text"]
+    year = response5.choices[0]["text"]
+    search_results['date'] = random_month + ' ' + str(random_day) + ',' + year
 
     return search_results
 
