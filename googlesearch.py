@@ -2,7 +2,6 @@ import re
 from functools import partial
 
 import openai
-from gpt_util import logit_mask
 import os
 from multiprocessing.pool import ThreadPool
 
@@ -130,7 +129,7 @@ def api_call(prompt, engine="curie", n=1, temperature=0.8, max_tokens=100, stop=
 
 
 def search_google(search_query, engine="curie", num_results=1):
-    with open("google_prompt_1.txt") as f:
+    with open("altgoogle/prompts/google_prompt_1.txt") as f:
         prompt = f.read()
     search_results = {}
     prompt_sections, blanks = split_prompt_template(prompt=prompt)
@@ -161,7 +160,7 @@ def search_google(search_query, engine="curie", num_results=1):
 def create_google_search_page(query, n=3, engine='davinci', filename='auto'):
     # search_results = []
     if filename == 'auto':
-        filename = f'google/query={query}_model={engine}.html'
+        filename = f'altgoogle/query={query}_model={engine}.html'
     pool = ThreadPool(n)
     search_results = pool.map(partial(search_google, engine=engine), [query]*n)
     # for i in range(n):
