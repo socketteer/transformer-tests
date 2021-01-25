@@ -4,17 +4,17 @@ from collections import defaultdict
 from types import SimpleNamespace
 
 import openai
-from transformers import GPT2Tokenizer
+#from transformers import GPT2Tokenizer
 import math
 
 from util import metadata
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
-
-def tokenize(input):
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-    return tokenizer(input)['input_ids']
+#
+# def tokenize(input):
+#     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+#     return tokenizer(input)['input_ids']
 
 
 def logprobs_to_probs(probs):
@@ -57,7 +57,7 @@ def _request_limiter(engine):
             raise PermissionError(f"{engine} has run too many times: {_request_limiter.meta['usage_count'][engine]}")
 
 
-def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200):
+def query(prompt, engine="ada", temperature=0.0, attempts=3, delay=1, max_tokens=200, stop=["\n"]):
     try:
         _request_limiter(engine)
     except PermissionError as e:
@@ -69,12 +69,12 @@ def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200):
         return openai.Completion.create(
             engine=engine,
             prompt=prompt,
-            temperature=0.0,
+            temperature=temperature,
             max_tokens=max_tokens,
             echo=False,
             top_p=1,
             n=1,
-            stop=["\n"],
+            stop=stop,
             timeout=15,
         )
     except Exception as e:
@@ -85,8 +85,9 @@ def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200):
 
 
 def main():
-    while True:
-        print(query("", "ada").choices[0]["text"])
+    pass
+    # while True:
+    #     print(query("", "ada").choices[0]["text"])
 
 
 if __name__ == "__main__":

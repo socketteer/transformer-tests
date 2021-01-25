@@ -98,7 +98,9 @@ Response
   "object": "text_completion"
 }
 ```
+
 ---
+
 Example request 2
 ```
 openai.Completion.create(

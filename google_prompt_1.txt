@@ -1,0 +1,4 @@
+I searched Google for "{USER_INPUT}". The first page of results showed a list of 10 webpages retrieved by Google.
+The first page was titled "{GPT3_1}" from the domain "{GPT3_2}", and its url is "{GPT3_2, GPT3_3}".
+The preview text is, "{GPT3_4}".
+The page was last revised on{GPT3_5}.
