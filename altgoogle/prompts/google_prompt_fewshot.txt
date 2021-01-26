@@ -1,0 +1,39 @@
+I searched Google for "OpenAI".
+The first page was titled "OpenAI" from the domain "openai.com", and its url is "openai.com".
+The preview text is, "OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.".
+The page was last revised on Jan 11, 2021.
+
+Then I searched google for "anteaters".
+The first page was titled "Anteater - Wikipedia" from the domain "en.wikipedia.org", and its url is "en.wikipedia.org/wiki/Anteater".
+The preview text is, "Anteater is a common name for the four extant mammal species of the suborder Vermilingua (meaning "worm tongue") commonly known for eating ants and ...".
+The page was last revised on Sep 17, 2020.
+
+I searched Google for "how to make mashed potatoes".
+The first page was titled "Basic Mashed Potatoes Recipe | Allrecipes" from the domain "allrecipes.com", and its url is "allrecipes.com/recipe/24771/basic-mashed-potatoes/".
+The preview text is, "Bring a pot of salted water to a boil. Add potatoes and cook until tender but still firm, about 15 minutes; drain. In a small saucepan heat butter and milk over low heat until butter is melted.".
+The page was last revised on Nov 6, 2018.
+
+I searched Google for "maxwell's equations".
+The first page was titled "Maxwell's Equations - Hyperphysics" from the domain "hyperphysics.phy-astr.gsu.edu", and its url is "hyperphysics.phy-astr.gsu.edu/hbase/electric/maxeq.html".
+The preview text is, "Maxwell's Equations. Maxwell's equations represent one of the most elegant and concise ways to state the fundamentals of electricity and magnetism.".
+The page was last revised on Dec 1, 2014.
+
+I searched Google for "why were cornflakes invented".
+The first page was titled "Corn Flakes originally created to clear the mind of 'sinful ..." from the domain "nzherald.co.nz", and its url is "nzherald.co.nz/lifestyle/corn-flakes-originally-created-to-clear-the-mind-of-sinful-thoughts/".
+The preview text is, "John Harvey Kellogg was born today in 1852. He invented Cornflakes in 1878 in the hope that plain food would stop people masturbating. — Dan ...".
+The page was last revised on Aug 16, 2019.
+
+I searched Google for "International Covenant on Civil and Political Rights".
+The first page was titled "International Covenant on Civil and Political Rights - OHCHR" from the domain "ohchr.org", and its url is "ohchr.org/EN/ProfessionalInterest/Pages/CCPR.aspx".
+The preview text is, "The States Parties to the present Covenant undertake to ensure the equal right of men and women to the enjoyment of all civil and political rights set forth in the ...".
+The page was last revised on Mar 12, 2020.
+
+I searched Google for "universe is a donut".
+The first page was titled "Doughnut-shaped Universe bites back : Nature News" from the domain "nature.com", and its url is "nature.com/news/2008/080523/full/news.2008.854.html".
+The preview text is, "Cosmologists have suggested various 'wrap-around' shapes for the Universe: it might be shaped like a football or even a weird 'doughnut'. ... Cosmologists predicted that a wrap-around Universe would act like a hall of mirrors, with images from distant objects being repeated multiple times across the sky.".
+The page was last revised on May 23, 2008.
+
+I searched Google for "{USER_INPUT}". The first page of results showed a list of 10 webpages retrieved by Google.
+The first page was titled "{GPT3_1}" from the domain "{GPT3_2}", and its url is "{GPT3_2, GPT3_3}".
+The preview text is, "{GPT3_4}".
+The page was last revised on{GPT3_5}.
