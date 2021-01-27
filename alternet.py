@@ -9,7 +9,27 @@ from create_html import google_search_html, wikipedia_html
 from tokenizer import logit_mask, tokenize
 
 
-NEWLINE_ID = 198
+t_NEWLINE = 198
+t_is = 271
+t_was = 9776
+t_are = 533
+t_oparen = 7
+t_From = 4863
+t_2 = 17
+t_1_point = 16
+t_23 = 1954
+t_Browse = 32635
+t_point = 13
+
+TOC_mask = {t_2: -100,
+            t_23: -100,
+            t_NEWLINE: -100,
+            t_Browse: -100,
+            t_1_point: -100,
+            t_point: -100}
+
+TOC_secondline_mask = {t_1_point: 95, t_2: 90}
+
 openai.api_key = os.environ["OPENAI_API_KEY"]
 # DATE_MASK = {'Jan': 100,
 #              'Feb': 100,
@@ -106,32 +126,167 @@ def create_google_search_page(query, n=3, engine='curie', filename='auto'):
 
 
 def generate_wiki_article(content, engine='curie'):
-    prompt = f'''
-I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
+    prompt = f'''I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
 The article introduction reads:
-"{content['title']} From Wikipedia, the free encyclopedia {content['title']}
-'''
+"{content['title']} From Wikipedia, the free encyclopedia {content['title']}'''
     # TODO don't force title to come first, but bold first instance of title...
     title_token = tokenize(content['title'])[0]
-    from_token = tokenize(['From'])[0][0]
-    is_token = tokenize(['is'])[0][0]
-    are_token = tokenize(['are'])[0][0]
-    was_token = tokenize(['was'])[0][0]
-    open_paren_token = tokenize(['('])[0][0]
     anti_repetition_mask = {title_token: -100,
-                            NEWLINE_ID: -100,
-                            from_token: -100,
-                            is_token: 50,
-                            was_token: 50,
-                            are_token: 50,
-                            open_paren_token: 40}
+                            t_NEWLINE: -100,
+                            t_From: -100,
+                            t_is: 50,
+                            t_was: 50,
+                            t_are: 50,
+                            t_oparen: 40}
     #anti_repetition_mask = logit_mask(anti_repetition_mask)
     response = api_call(prompt=prompt, engine=engine, max_tokens=1, mask=anti_repetition_mask, temperature=0.6)
     first_token = response.choices[0]["text"]
     prompt += (' ' + first_token)
-    response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.7)
-    content['introduction'] = ' ' + first_token + response.choices[0]["text"]
+    response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.8)
+
+    #TODO save logprobs, split by paragraphs, find highest probability of \"
+    if response.choices[0]["finish_reason"] == "length":
+        introduction = response.choices[0]["text"].splitlines()[0]
+    else:
+        introduction = response.choices[0]["text"]
+
+    content['introduction'] = ' ' + first_token + introduction
+    prompt_after_intro = prompt + content['introduction']
+
+    toc_prompt_frag = f'''" 
+The table of contents reads:
+"Contents
+1'''
+
+    toc_prompt = prompt_after_intro + toc_prompt_frag
+    firstline_mask = TOC_mask
+    firstline_mask[title_token]: -90
+    response = api_call(prompt=toc_prompt, engine=engine, max_tokens=1, temperature=0.7, mask=firstline_mask, stop=["\n", "\""])
+    TOC_first_token = response.choices[0]["text"]
+    TOC_firstline_prompt = toc_prompt + TOC_first_token
+    response = api_call(prompt=TOC_firstline_prompt, engine=engine, max_tokens=5, temperature=0.7, stop=["\"", "\n"])
+    TOC_firstline = response.choices[0]["text"]
+
+    TOC_secondline_prompt = TOC_firstline_prompt + TOC_firstline + '\n'
+    response = api_call(prompt=TOC_secondline_prompt, engine=engine, max_tokens=1, temperature=0.7, stop=["\"", "\n"],
+                        mask=TOC_secondline_mask)
+    TOC_second_number = response.choices[0]["text"]
+
+    response = api_call(prompt=TOC_secondline_prompt + TOC_second_number, engine=engine, max_tokens=300, temperature=0.7, stop=["\""])
+    TOC_rest = response.choices[0]["text"]
+
+    generated_TOC = '1' + TOC_first_token + TOC_firstline + '\n' + TOC_second_number + TOC_rest
+    print(generated_TOC)
+
+    toc_items = generated_TOC.splitlines()
+    content["TOC"] = {}
+    content["TOC"]["children"] = []
+    content["TOC_index"] = 0
+    TOC_entry(parent=content["TOC"], items=toc_items, content=content)
+
+    print('\n\n')
+    print(content["TOC"])
+
+    # TODO use fewshot?
+    categories_prompt_frag = f'''" 
+The article belongs to the following Categories: "'''
+
+    # categories_prompt = prompt_after_intro + categories_prompt_frag
+    # response = api_call(prompt=categories_prompt, engine=engine, max_tokens=50, temperature=0.7,
+    #                     stop=["\""])
+    # categories = response.choices[0]["text"]
+    # print(categories_prompt)
+    # print(categories)
     return content
+
+
+
+# TODO clean up
+def TOC_entry(parent, items, content):
+    #print('TOC entry')
+    #print('parent: ', parent)
+    if content["TOC_index"] == len(items):
+        #print('reached end')
+        return 'END'
+
+
+    next_node_type = None
+
+    return_msg = None
+    while next_node_type != 'endOfList' and return_msg != 'END':
+
+        next_node_type = lookahead(items, content["TOC_index"])
+        #print(f'next node type is {next_node_type}')
+
+        try:
+            number = items[content["TOC_index"]].split(" ")[0]
+            if not number[0].isdigit():
+                #print('not digit')
+                return 'NAN'
+
+        except IndexError:
+            #print('index error trying to split entry')
+            return 'IndexError'
+
+        title = " ".join(items[content["TOC_index"]].split(" ")[1:])
+
+        current_node = {'title': title,
+                        'number': number}
+        #print('current node: ', current_node)
+        parent['children'].append(current_node)
+        content["TOC_index"] += 1
+
+        if next_node_type == 'child':
+            if 'children' not in current_node:
+                current_node["children"] = []
+            return_msg = TOC_entry(parent=current_node, items=items, content=content)
+            #print('end children')
+        elif next_node_type == 'pop':
+            #print('current:', current_node)
+            #print('parent:', parent)
+            #print('pop')
+            return 'pop'
+        else:
+            # sibling
+            pass
+
+    try:
+        number = items[content["TOC_index"]].split(" ")[0]
+        if not number[0].isdigit():
+            #print('not digit')
+            return 'NAN'
+
+    except IndexError:
+        #print('index error trying to split entry')
+        return 'IndexError'
+
+    title = " ".join(items[content["TOC_index"]].split(" ")[1:])
+
+    current_node = {'title': title,
+                    'number': number}
+    #print('current node: ', current_node)
+    parent['children'].append(current_node)
+
+
+def lookahead(items, index):
+    if index + 1 == len(items):
+        #print('lookahead eol 1')
+        return 'endOfList'
+    try:
+        current_num = items[index].split(" ")[0].split('.')
+        next_num = items[index+1].split(" ")[0].split('.')
+    except IndexError:
+        #print('index error splitting num in lookahead')
+        return 'endOfList'
+    if len(current_num) == len(next_num):
+        return 'sibling'
+    elif len(current_num) < len(next_num):
+        return 'child'
+    elif len(next_num) == 0:
+        #print('lookahead eol 2')
+        return 'endOfList'
+    else:
+        return 'pop'
 
 
 def google_search():
@@ -152,7 +307,7 @@ def wikipedia_article(engine):
 
 def main():
     #google_search()
-    wikipedia_article(engine='davinci')
+    wikipedia_article(engine='curie')
 
 
 if __name__ == "__main__":

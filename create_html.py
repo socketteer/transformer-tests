@@ -86,7 +86,7 @@ def TOC_entry(node, content):
         for child in node['children']:
             item_html += TOC_entry(child, content)
         item_html += '</ul>'
-        content['section'] = 1
+        content['level'] -= 1
     item_html += '</li>'
     return item_html
 
@@ -100,7 +100,7 @@ def TOC(content):
 <ul>
 '''
 
-    for node in content["TOC"]:
+    for node in content["TOC"]["children"]:
         TOC_html += TOC_entry(node, content)
 
     TOC_html += '''
