@@ -59,6 +59,7 @@ def api_call(prompt, engine="curie", n=1, temperature=0.8, max_tokens=100, stop=
     )
 
 
+#TODO logit bias for websites
 def query_google(search_query, engine="curie", num_results=1):
     with open("alternet/prompts/google_prompt_1.txt") as f:
         prompt = f.read()
@@ -129,7 +130,7 @@ The article introduction reads:
     first_token = response.choices[0]["text"]
     prompt += (' ' + first_token)
     response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.7)
-    content['content'] = ' ' + first_token + response.choices[0]["text"]
+    content['introduction'] = ' ' + first_token + response.choices[0]["text"]
     return content
 
 
