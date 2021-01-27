@@ -44,7 +44,7 @@ def _request_limiter(engine):
         "ada": 5000,
         "babbage": 1000,
         "curie": 500,
-        "davinci": 100
+        "davinci": 100,
     }
     _request_limiter.meta["usage_count"][engine] += 1
 
@@ -60,11 +60,12 @@ def _request_limiter(engine):
             raise PermissionError(f"{engine} has run too many times: {_request_limiter.meta['usage_count'][engine]}")
 
 
-def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200):
+def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200, override_limits=False):
     try:
         _request_limiter(engine)
     except PermissionError as e:
-        return SimpleNamespace(choices=[defaultdict(int)])
+        if not override_limits:
+            return SimpleNamespace(choices=[defaultdict(int)])
 
     if attempts < 1:
         raise TimeoutError
