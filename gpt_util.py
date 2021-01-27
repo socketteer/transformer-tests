@@ -4,17 +4,11 @@ from collections import defaultdict
 from types import SimpleNamespace
 
 import openai
-from transformers import GPT2Tokenizer
 import math
 
 from util import metadata
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
-
-
-def tokenize(input):
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-    return tokenizer(input)['input_ids']
 
 
 def logprobs_to_probs(probs):
@@ -28,14 +22,6 @@ def total_logprob(response):
     logprobs = response['logprobs']['token_logprobs']
     logprobs = [i for i in logprobs if not math.isnan(i)]
     return sum(logprobs)
-
-
-def logit_mask(mask):
-    id_mask = {}
-    for token in mask:
-        token_id = tokenize([token])[0][0]
-        id_mask[token_id] = mask[token]
-    return id_mask
 
 
 @metadata(usage_count=defaultdict(int), override=defaultdict(lambda: False))
@@ -60,7 +46,7 @@ def _request_limiter(engine):
             raise PermissionError(f"{engine} has run too many times: {_request_limiter.meta['usage_count'][engine]}")
 
 
-def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200, override_limits=False):
+def query(prompt, engine="ada", temperature=0.0, attempts=3, delay=1, max_tokens=200, override_limits=False, stop=["\n"]):
     try:
         _request_limiter(engine)
     except PermissionError as e:
@@ -73,12 +59,12 @@ def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200, override_li
         return openai.Completion.create(
             engine=engine,
             prompt=prompt,
-            temperature=0.0,
+            temperature=temperature,
             max_tokens=max_tokens,
             echo=False,
             top_p=1,
             n=1,
-            stop=["\n"],
+            stop=stop,
             timeout=15,
         )
     except Exception as e:
@@ -86,6 +72,7 @@ def query(prompt, engine="ada", attempts=3, delay=1, max_tokens=200, override_li
         print(e)
         time.sleep(delay)
         return query(prompt, engine, attempts=attempts-1, delay=delay*2)
+
 
 def query_yes_no(prompt, engine="ada", attempts=3, delay=1, max_tokens=1):
     if attempts < 1:
@@ -131,10 +118,16 @@ def query_yes_no(prompt, engine="ada", attempts=3, delay=1, max_tokens=1):
         return result
 
 
-
-
     except Exception as e:
         print(f"Failed to query, {attempts} attempts remaining, delay={delay}")
         print(e)
         time.sleep(delay)
         return query(prompt, engine, attempts=attempts-1, delay=delay*2)
+
+def main():
+    pass
+    # while True:
+    #     print(query("", "ada").choices[0]["text"])
+
+
+
