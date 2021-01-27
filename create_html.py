@@ -137,7 +137,7 @@ def wikipedia_html(content):
                     <a class="mw-jump-link" href="#mw-head">Jump to navigation</a>
                     <a class="mw-jump-link" href="#searchInput">Jump to search</a>
                     <div id="mw-content-text" dir="ltr" class="mw-content-ltr" lang="en"><div class="mw-parser-output">
-                      <p>{content['content']}</p><p><br>
+                      <p><b>{content['title']}</b>{content['content']}</p><p><br>
             </p>
             '''
     if 'references' in content:
