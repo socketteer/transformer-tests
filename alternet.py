@@ -5,8 +5,11 @@ import openai
 import os
 import random
 from multiprocessing.pool import ThreadPool
-from create_html import google_search_html
+from create_html import google_search_html, wikipedia_html
+from tokenizer import logit_mask, tokenize
 
+
+NEWLINE_ID = 198
 openai.api_key = os.environ["OPENAI_API_KEY"]
 # DATE_MASK = {'Jan': 100,
 #              'Feb': 100,
@@ -20,6 +23,7 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 #              'Nov': 100,
 #              'Dec': 100}
 # DATE_MASK = logit_mask(DATE_MASK)
+
 
 
 
@@ -55,8 +59,8 @@ def api_call(prompt, engine="curie", n=1, temperature=0.8, max_tokens=100, stop=
     )
 
 
-def search_google(search_query, engine="curie", num_results=1):
-    with open("altgoogle/prompts/google_prompt_1.txt") as f:
+def query_google(search_query, engine="curie", num_results=1):
+    with open("alternet/prompts/google_prompt_1.txt") as f:
         prompt = f.read()
     search_results = {}
     prompt_sections, blanks = split_prompt_template(prompt=prompt)
@@ -88,9 +92,9 @@ def search_google(search_query, engine="curie", num_results=1):
 def create_google_search_page(query, n=3, engine='curie', filename='auto'):
     # search_results = []
     if filename == 'auto':
-        filename = f'altgoogle/query={query}_model={engine}.html'
+        filename = f'alternet/googpt/query={query}_model={engine}.html'
     pool = ThreadPool(n)
-    search_results = pool.map(partial(search_google, engine=engine), [query]*n)
+    search_results = pool.map(partial(query_google, engine=engine), [query] * n)
     # for i in range(n):
     #     search_results.append(search_google(query, engine="davinci", num_results=1))
 
@@ -100,10 +104,54 @@ def create_google_search_page(query, n=3, engine='curie', filename='auto'):
     html_file.close()
 
 
-def main():
+def generate_wiki_article(content, engine='curie'):
+    prompt = f'''
+I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
+The article introduction reads:
+"{content['title']} From Wikipedia, the free encyclopedia {content['title']}
+'''
+    # TODO don't force title to come first, but bold first instance of title...
+    title_token = tokenize(content['title'])[0]
+    from_token = tokenize(['From'])[0][0]
+    is_token = tokenize(['is'])[0][0]
+    are_token = tokenize(['are'])[0][0]
+    was_token = tokenize(['was'])[0][0]
+    open_paren_token = tokenize(['('])[0][0]
+    anti_repetition_mask = {title_token: -100,
+                            NEWLINE_ID: -100,
+                            from_token: -100,
+                            is_token: 50,
+                            was_token: 50,
+                            are_token: 50,
+                            open_paren_token: 40}
+    #anti_repetition_mask = logit_mask(anti_repetition_mask)
+    response = api_call(prompt=prompt, engine=engine, max_tokens=1, mask=anti_repetition_mask, temperature=0.6)
+    first_token = response.choices[0]["text"]
+    prompt += (' ' + first_token)
+    response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.7)
+    content['content'] = ' ' + first_token + response.choices[0]["text"]
+    return content
+
+
+def google_search():
     search_query = input("Search Google: ")
     create_google_search_page(search_query, 8, engine='davinci')
     print('done')
+
+def wikipedia_article(engine):
+    content = {}
+    content['title'] = input("Browse Wikipedia: ")
+    content['url'] = content['title'].replace(" ", "_")
+    content = generate_wiki_article(content, engine=engine)
+    html = wikipedia_html(content)
+    html_file = open(f"alternet/wiki/{content['title']}-wikipedia-{engine}.html", "w")
+    html_file.write(html)
+    html_file.close()
+    print('done')
+
+def main():
+    #google_search()
+    wikipedia_article(engine='davinci')
 
 
 if __name__ == "__main__":

@@ -21,9 +21,10 @@ content = {'title': 'Jim the Boy',
            'categories': ['2000 American novels', 'Novels set in North Carolina', 'Little, Brown and Company books', 'American bildungsromans', '2000s young adult novel stubs', 'Bildungsroman stubs']}
 
 
+
 def main():
     html = wikipedia_html(content)
-    html_file = open('altgoogle/wiki/html_test.html', "w")
+    html_file = open('alternet/wiki/html_test.html', "w")
     html_file.write(html)
     html_file.close()
 
