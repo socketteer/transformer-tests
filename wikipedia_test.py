@@ -11,12 +11,26 @@ reference2 = {'title': 'Maslin, Janet (8 June 2000).',
 
 reference3 = {'title': 'Optics, Hecht, 4th edition, pp. 386-7'}
 
+mother_string = """His mother's name is Elizabeth.
+She has three brothers: James, John, and Johnson."""
+
+education_string = """Jim was homeschooled until high school."""
+
+TOC_section_1_1 = [{'title': 'Mother',
+                    'number': '1.1.1',
+                    'text': mother_string},
+                   {'title': 'Uncles',
+                    'number': '1.1.2'}]
+
 TOC_section_1 = [{'title': 'Family',
-                  'number': '1.1'},
+                  'number': '1.1',
+                  'children': TOC_section_1_1},
                  {'title': 'Education',
                   'number': '1.2'},
                  {'title': 'Religious formation',
                   'number': '1.3'}]
+
+
 
 TOC_section_2 = [{'title': 'High school',
                   'number': '2.1'},
@@ -28,13 +42,17 @@ TOC = {'children': [{'title': 'Early life',
                      'children': TOC_section_1},
                     {'title': 'Education',
                      'number': '2',
-                     'children': TOC_section_2},
+                     'children': TOC_section_2,
+                     'text': education_string},
                     {'title': 'Death',
                      'number': '3'}]}
 
+intro_string = """is a coming-of-age novel by Tony Earley, published by Little, Brown in 2000. It details the early life of Jim Glass, who lives with his mother, Elizabeth, and three uncles, in the small fictional town of Aliceville, North Carolina, also known as "Jim the Town".
+It is widely regarded as the best book of all time."""
+
 content = {'title': 'Jim the Boy',
            'url': 'Jim_the_Boy',
-           'introduction': 'Jim the Boy is a coming-of-age novel by Tony Earley, published by Little, Brown in 2000. It details the early life of Jim Glass, who lives with his mother, Elizabeth, and three uncles, in the small fictional town of Aliceville, North Carolina.',
+           'introduction': intro_string,
            'references': [reference1, reference2, reference3],
            'languages': ['Deutsch', 'עברית', '中文'],
            'categories': ['2000 American novels', 'Novels set in North Carolina', 'Little, Brown and Company books',

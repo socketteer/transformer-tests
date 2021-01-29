@@ -1,3 +1,6 @@
+from html_util import text_to_html
+
+
 def google_search_html(query, results):
     google_html = f'''
 <!DOCTYPE html>
@@ -74,6 +77,33 @@ def google_search_html(query, results):
     return google_html
 
 
+def sections(content):
+    content['level'] = 1
+    content['section'] = 1
+    sections_html = ''
+    for node in content["TOC"]["children"]:
+        sections_html += section(node, content)
+    return sections_html
+
+
+def section(node, content):
+    sections_html = ''
+    node_url = node['title'].replace(" ", "_")
+    section_html = f'''
+        <h{1+content['level']}><span class="mw-headline" id="{node_url}">{node['title']}</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title={node_url}&amp;action=edit&amp;section={node['number']}" title="Edit section: {node['title']}">edit</a><span class="mw-editsection-bracket">]</span></span></h{1+content['level']}>'''
+    sections_html += section_html
+    if 'text' in node:
+        sections_html += f'''
+{text_to_html(node['text'])}'''
+
+    if 'children' in node:
+        content['level'] += 1
+        for child in node['children']:
+            sections_html += section(child, content)
+        content['level'] -= 1
+    return sections_html
+
+
 def TOC_entry(node, content):
     title_url = node['title'].replace(" ", "_")
     item_html = f'''
@@ -108,6 +138,8 @@ def TOC(content):
 </div>
 '''
     return TOC_html
+
+
 
 
 # TODO sections, TOC, infobox
@@ -171,11 +203,13 @@ def wikipedia_html(content):
         <a class="mw-jump-link" href="#mw-head">Jump to navigation</a>
         <a class="mw-jump-link" href="#searchInput">Jump to search</a>
         <div id="mw-content-text" dir="ltr" class="mw-content-ltr" lang="en"><div class="mw-parser-output">
-          <p><b>{content['title']}</b>{content['introduction']}</p><p><br>
-</p>
-            '''
+          <p><b>{content['title']}</b>{text_to_html(content['introduction'], leading_break=False)}</p>'''
     if 'TOC' in content:
         html += TOC(content)
+        html += sections(content)
+    else:
+        # TODO stub
+        pass
     if 'references' in content:
         references_begin = f'''
 <h2><span class="mw-headline" id="References">References</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="https://en.wikipedia.org/w/index.php?title={content['url']}&amp;action=edit&amp;section=1" title="Edit section: References">edit</a><span class="mw-editsection-bracket">]</span></span></h2>

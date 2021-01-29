@@ -12,7 +12,10 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 
 def logprobs_to_probs(probs):
-    return [math.exp(x) for x in probs]
+    if isinstance(probs, list):
+        return [math.exp(x) for x in probs]
+    else:
+        return math.exp(probs)
 
 def dict_logprobs_to_probs(prob_dict):
     return {key: math.exp(prob_dict[key]) for key in prob_dict.keys()}
