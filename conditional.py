@@ -1,7 +1,7 @@
 import os
 import openai
 import numpy as np
-from gpt_util import logprobs_to_probs
+from gpt_util import logprobs_to_probs, normalize
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
@@ -33,13 +33,19 @@ def filter_logprob(prompt, filter, engine='ada'):
 
 # TODO use threading
 # returns the conditional probabilities for each event happening after prompt
-def event_probs(prompt, events, engine='ada', normalize=False):
-    pass
+def event_probs(prompt, events, engine='ada'):
+    probs = []
+    for event in events:
+        logprob = filter_logprob(prompt, event, engine)
+        probs.append(logprobs_to_probs(logprob))
 
+    normal_probs = normalize(probs)
+    return probs, normal_probs
 
 # returns a list of positions and counterfactual probability of token at position
 # if token is not in top_logprobs, probability is treated as 0
 # all positions if actual_token=None, else only positions where the actual token in response is actual_token
+# TODO next sequence instead of next token
 def counterfactual(response, token, actual_token=None, next_token=None, sort=True):
     counterfactual_probs = []
     tokens = response.choices[0]['logprobs']['tokens']

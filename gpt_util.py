@@ -11,11 +11,16 @@ from util import metadata
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 
+def normalize(probs):
+    return [float(i) / sum(probs) for i in probs]
+
+
 def logprobs_to_probs(probs):
     if isinstance(probs, list):
         return [math.exp(x) for x in probs]
     else:
         return math.exp(probs)
+
 
 def dict_logprobs_to_probs(prob_dict):
     return {key: math.exp(prob_dict[key]) for key in prob_dict.keys()}
