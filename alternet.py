@@ -8,61 +8,9 @@ from multiprocessing.pool import ThreadPool
 from create_html import google_search_html, wikipedia_html
 from tokenizer import logit_mask, tokenize
 from conditional import counterfactual
-
-
-t_NEWLINE = 198
-t_is = 271
-t_was = 9776
-t_are = 533
-t_oparen = 7
-t_From = 4863
-t_2 = 17
-t_1_point = 16
-t_23 = 1954
-t_Browse = 32635
-t_point = 13
-t_6 = 21
-t_7 = 22
-t_8 = 23
-t_9 = 24
-t_10 = 940
-
-TOC_firstline_mask = {t_2: -100,
-                      t_23: -100,
-                      t_NEWLINE: -100,
-                      t_Browse: -100,
-                      t_1_point: -100,
-                      t_point: -100}
-
-TOC_secondline_mask = {t_1_point: 95, t_2: 90}
-
-# TODO bias references, high numbers
-# TODO encourages infinite nesting
-TOC_rest_mask = {t_1_point: -5,
-                 t_6: -10,
-                 t_7: -20,
-                 t_8: -40,
-                 t_9: -80,
-                 t_10: -100}
+from masks import *
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
-# DATE_MASK = {'Jan': 100,
-#              'Feb': 100,
-#              'Mar': 100,
-#              'Apr': 100,
-#              'May': 100,
-#              'Jun': 100,
-#              'Jul': 100,
-#              'Aug': 100,
-#              'Sep': 100,
-#              'Nov': 100,
-#              'Dec': 100}
-# DATE_MASK = logit_mask(DATE_MASK)
-
-
-
-
-
 
 def split_prompt_template(prompt, start_delimiter='{', end_delimiter='}'):
     parts = re.split(rf"{start_delimiter}", prompt)
@@ -80,7 +28,7 @@ def split_prompt_template(prompt, start_delimiter='{', end_delimiter='}'):
 def api_call(prompt, engine="curie", n=1, temperature=0.8, max_tokens=100, logprobs=0, stop='default', mask=None):
     if mask is None:
         mask = {}
-    if stop is 'default':
+    if stop == 'default':
         stop = ["\""]
     return openai.Completion.create(
         engine=engine,
@@ -179,14 +127,15 @@ def generate_wiki_intro(content, engine):
     response = api_call(prompt=prompt, engine=engine, max_tokens=1, mask=anti_repetition_mask, temperature=0.6)
     first_token = response.choices[0]["text"]
     prompt += (' ' + first_token)
-    response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.8, stop=["\"\n"], logprobs=100)
+    response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.8,
+                        stop=["\"\n", "\" \n"],
+                        logprobs=100)
 
     introduction = extract_section_text(response, prompt, stop_sequence='\"')
 
     content['introduction'] = ' ' + first_token + introduction
 
     return prompt + content['introduction']
-
 
 
 def generate_TOC(content, prompt_after_intro, engine='curie'):
@@ -196,13 +145,14 @@ def generate_TOC(content, prompt_after_intro, engine='curie'):
     1'''
 
     toc_prompt = prompt_after_intro + toc_prompt_frag
-    firstline_mask = TOC_firstline_mask
-    firstline_mask[content['title_token']]: -90
-    response = api_call(prompt=toc_prompt, engine=engine, max_tokens=1, temperature=0.7, mask=firstline_mask,
+    first_token_mask = TOC_first_token_mask
+    first_token_mask[content['title_token']]: -90
+    response = api_call(prompt=toc_prompt, engine=engine, max_tokens=1, temperature=0.7, mask=first_token_mask,
                         stop=["\n", "\""])
     TOC_first_token = response.choices[0]["text"]
     TOC_firstline_prompt = toc_prompt + TOC_first_token
-    response = api_call(prompt=TOC_firstline_prompt, engine=engine, max_tokens=5, temperature=0.7, stop=["\"", "\n"])
+    response = api_call(prompt=TOC_firstline_prompt, engine=engine, max_tokens=5, temperature=0.7, stop=["\"", "\n"],
+                        mask=TOC_first_line_mask)
     TOC_firstline = response.choices[0]["text"]
 
     TOC_secondline_prompt = TOC_firstline_prompt + TOC_firstline + '\n'
@@ -211,39 +161,160 @@ def generate_TOC(content, prompt_after_intro, engine='curie'):
     TOC_second_number = response.choices[0]["text"]
 
     response = api_call(prompt=TOC_secondline_prompt + TOC_second_number, engine=engine, max_tokens=300,
-                        temperature=0.7, stop=["\"", "\n\n"], mask=TOC_rest_mask)
+                        temperature=0.7, stop=["\"", "\n\n"],
+                        mask=TOC_rest_mask)
     TOC_rest = response.choices[0]["text"]
 
-    generated_TOC = '1' + TOC_first_token + TOC_firstline + '\n' + TOC_second_number + TOC_rest
-    print(generated_TOC)
-    toc_items = generated_TOC.splitlines()
+    content["TOC_plaintext"] = '1' + TOC_first_token + TOC_firstline + '\n' + TOC_second_number + TOC_rest
+    process_TOC_plaintext(content)
+    print(content["TOC_plaintext"])
+    if len(content["flattened_TOC"]) > 25:
+        print('long TOC...')
+        exit(0)
+    #toc_items = content["TOC_plaintext"].splitlines()
     content["TOC"] = {}
     content["TOC"]["children"] = []
     content["TOC_index"] = 0
-    TOC_entry(parent=content["TOC"], items=toc_items, content=content)
+    TOC_entry(parent=content["TOC"], content=content)
 
     # print('\n\n')
     #print(content["TOC"])
 
 
-def generate_section(node, content, engine):
+def process_TOC_plaintext(content):
+    content['flattened_TOC'] = []
+    fixed_TOC_plaintext = ''
+    for i, line in enumerate(content["TOC_plaintext"].splitlines()):
+        line_text = line.strip()
+
+        try:
+            number = line_text.split(" ")[0]
+            if not number[0].isdigit():
+                print('not digit')
+                break
+            content['flattened_TOC'].append({'line_text': line_text})
+            content['flattened_TOC'][i]['number'] = number
+            content['flattened_TOC'][i]['title'] = ' '.join(line_text.split(' ')[1:])
+
+        except IndexError:
+            print('index error trying to split entry')
+            break
+        fixed_TOC_plaintext += content['flattened_TOC'][i]['line_text'] + '\n'
+        if content['flattened_TOC'][i]['title'] == 'References':
+            break
+    content["TOC_plaintext"] = fixed_TOC_plaintext
+
+
+# TODO clean up
+def TOC_entry(parent, content):
+    if content["TOC_index"] == len(content['flattened_TOC']):
+        return 'END'
+
+    next_node_type = None
+
+    return_msg = None
+    while next_node_type != 'endOfList' and return_msg != 'END':
+
+        try:
+            next_node_type = lookahead(content['flattened_TOC'], content["TOC_index"])
+            number = content['flattened_TOC'][content["TOC_index"]]["number"]
+            title = content['flattened_TOC'][content["TOC_index"]]["title"]
+        except IndexError:
+            print('index error in TOC_entry while loop')
+            return
+
+        current_node = {'title': title,
+                        'number': number}
+        parent['children'].append(current_node)
+        content["TOC_index"] += 1
+
+        if next_node_type == 'child':
+            if 'children' not in current_node:
+                current_node["children"] = []
+            return_msg = TOC_entry(parent=current_node, content=content)
+        elif next_node_type == 'pop':
+            return 'pop'
+        else:
+            # sibling
+            pass
+
+    try:
+        number = content['flattened_TOC'][content["TOC_index"]]["number"]
+        title = content['flattened_TOC'][content["TOC_index"]]["title"]
+
+        current_node = {'title': title,
+                        'number': number}
+        parent['children'].append(current_node)
+    except IndexError:
+        print('index error in TOC_entry')
+        return
+
+
+def lookahead(items, index):
+    #print(items[index])
+    if index + 1 == len(items):
+        #print('lookahead eol 1')
+        return 'endOfList'
+    try:
+        current_num = items[index]["number"]
+        #print('next: ', items[index+1])
+        next_num = items[index+1]["number"]
+    except IndexError:
+        #print('index error splitting num in lookahead')
+        return 'endOfList'
+    if len(current_num) == len(next_num):
+        return 'sibling'
+    elif len(current_num) < len(next_num):
+        return 'child'
+    elif len(next_num) == 0:
+        #print('lookahead eol 2')
+        return 'endOfList'
+    else:
+        return 'pop'
+
+
+# TODO always keep TOC in context window
+# TODO error / try again if empty or generate multiple?
+def generate_section(node, content, engine, toc=True):
     for i, child in enumerate(node["children"]):
-        content['article_text'] += '\n\n'
-        content['article_text'] += child['title'] + '\n'
-        response = api_call(prompt=content['article_text'][-1000:], engine=engine, max_tokens=500,
-                            temperature=0.7, stop=["\n\n"], logprobs=100)
-        child['text'] = response.choices[0]["text"]
-        print(child['text'])
-        content['article_text'] += child['text']
+        content['sections_text'] += '\n\n'
+        stop = ["\n\n"]
+        if toc:
+            content['sections_text'] += child['number'] + ' '
+            # TODO get next title from flat list instead
+            if i + 1 < len(node['children']):
+                stop.append(node['children'][i+1]['title'])
+                stop.append(node['children'][i+1]['number'] + ' ' + node['children'][i+1]['title'])
+                stop.append(node['children'][i+1]['number'] + node['children'][i+1]['title'])
+
+        content['sections_text'] += child['title'] + '\n'
+
+        intro_and_TOC = content['title'] + content['introduction'] + content['TOC_plaintext']
+        if len(intro_and_TOC + content['sections_text']) > 6000:
+            sections_window = content['sections_text'][-(6000-len(intro_and_TOC)):]
+        else:
+            sections_window = content['sections_text']
+        prompt = intro_and_TOC + sections_window
+        #print('prompt: ', prompt)
+        response = api_call(prompt=prompt, engine=engine, max_tokens=1,
+                            temperature=0.8, mask=section_begin_mask)
+        first_token = response.choices[0]["text"]
+        response = api_call(prompt=prompt + first_token, engine=engine, max_tokens=500,
+                            temperature=0.8, stop=stop, logprobs=100)
+        child['text'] = first_token + response.choices[0]["text"]
+        #print('article text: {' + content['article_text'][-4000:] + '}')
+        #print('section text: {' + child['text'] + '}')
+        content['sections_text'] += child['text']
         if 'children' in child:
-            for node_child in node['children']:
-                generate_section(child, content, engine)
+            generate_section(child, content, engine, toc)
 
 
-# TODO include TOC in prompt
-def generate_sections(content, prompt_after_intro, engine):
-    content['article_text'] = prompt_after_intro
-    generate_section(content["TOC"], content, engine)
+def generate_sections(content, prompt_after_intro, engine, toc=True):
+    # content['article_text'] = prompt_after_intro
+    # if toc:
+    #     content['article_text'] += content["TOC_plaintext"]
+    content['sections_text'] = ''
+    generate_section(content["TOC"], content, engine, toc)
 
 
 # TODO use fewshot?
@@ -266,86 +337,18 @@ def generate_infobox(content, prompt_after_intro, engine):
 
 
 # TODO threading
-def generate_wiki_article(content, engine='curie'):
+def generate_wiki_article(content, engine='curie', TOC='True', sections='False', start_text=None, infobox=False):
 
     prompt_after_intro = generate_wiki_intro(content, engine)
-    generate_TOC(content, prompt_after_intro, engine)
-    generate_sections(content, prompt_after_intro, engine)
+
+    if TOC:
+        generate_TOC(content, prompt_after_intro, engine)
+        if sections:
+            generate_sections(content, prompt_after_intro, engine)
 
 
-
-# TODO clean up
-def TOC_entry(parent, items, content):
-    if content["TOC_index"] == len(items):
-        return 'END'
-
-    next_node_type = None
-
-    return_msg = None
-    while next_node_type != 'endOfList' and return_msg != 'END':
-
-        next_node_type = lookahead(items, content["TOC_index"])
-        try:
-            number = items[content["TOC_index"]].split(" ")[0]
-            if not number[0].isdigit():
-                #print('not digit')
-                return 'NAN'
-
-        except IndexError:
-            #print('index error trying to split entry')
-            return 'IndexError'
-
-        title = " ".join(items[content["TOC_index"]].split(" ")[1:])
-
-        current_node = {'title': title,
-                        'number': number}
-        parent['children'].append(current_node)
-        content["TOC_index"] += 1
-
-        if next_node_type == 'child':
-            if 'children' not in current_node:
-                current_node["children"] = []
-            return_msg = TOC_entry(parent=current_node, items=items, content=content)
-        elif next_node_type == 'pop':
-            return 'pop'
-        else:
-            # sibling
-            pass
-
-    try:
-        number = items[content["TOC_index"]].split(" ")[0]
-        if not number[0].isdigit():
-            return 'NAN'
-
-    except IndexError:
-        return 'IndexError'
-
-    title = " ".join(items[content["TOC_index"]].split(" ")[1:])
-
-    current_node = {'title': title,
-                    'number': number}
-    parent['children'].append(current_node)
-
-
-def lookahead(items, index):
-    if index + 1 == len(items):
-        #print('lookahead eol 1')
-        return 'endOfList'
-    try:
-        current_num = items[index].split(" ")[0].split('.')
-        next_num = items[index+1].split(" ")[0].split('.')
-    except IndexError:
-        #print('index error splitting num in lookahead')
-        return 'endOfList'
-    if len(current_num) == len(next_num):
-        return 'sibling'
-    elif len(current_num) < len(next_num):
-        return 'child'
-    elif len(next_num) == 0:
-        #print('lookahead eol 2')
-        return 'endOfList'
-    else:
-        return 'pop'
+def generate_until_length(min_length, tries):
+    pass
 
 
 def google_search(engine='curie'):
@@ -354,21 +357,51 @@ def google_search(engine='curie'):
     print('done')
 
 
-def wikipedia_article(engine='curie'):
+# TODO option to specify first line
+# TODO infobox option
+# TODO set image
+
+def wiki_article(title, infobox=False, img=None, start_text=None, save_as='auto', engine='cushman-alpha'):
     content = {}
-    content['title'] = input("Browse Wikipedia: ")
-    content['url'] = content['title'].replace(" ", "_")
-    generate_wiki_article(content, engine=engine)
+    content['title'] = title
+    content['url'] = title.replace(" ", "_")
+    if infobox or (img is not None):
+        content['infobox'] = {}
+    if img is not None:
+        content['infobox']['img'] = {}
+        content['infobox']['img']['filename'] = img['filename']
+        content['infobox']['img']['description'] = img['description']
+    generate_wiki_article(content, infobox=infobox, start_text=start_text, engine=engine)
     html = wikipedia_html(content)
-    html_file = open(f"alternet/wiki/{content['title']}-wikipedia-{engine}.html", "w")
+    if save_as == 'auto':
+        filename = f"alternet/wiki/{content['title']}-wikipedia-{engine}.html"
+    else:
+        filename = f"alternet/wiki/{save_as}.html"
+    html_file = open(filename, "w")
     html_file.write(html)
     html_file.close()
     print('done')
 
 
+def create_article(engine='cushman-alpha'):
+    title = input("Browse Wikipedia: ")
+    wiki_article(title, engine=engine)
+
+
 def main():
     #google_search(engine='davinci')
-    wikipedia_article(engine='curie')
+    create_article(engine='cushman-alpha')
+    # wiki_article(title='The Random Number God', engine='cushman-alpha')
+    # wiki_article(title='The Internet', engine='cushman-alpha')
+    # wiki_article(title='Wave-particle duality', img={'filename': 'waveparticle.png',
+    #                                 'description': 'computer prediction of \"wave-particle duality\"'},
+    #              engine='cushman-alpha')
+    # wiki_article(title='Quantum mechanics', img={'filename': 'spookyquantum.png',
+    #                                              'description': 'computer prediction of \"spooky quantum mechanics\"'},
+    #              engine='cushman-alpha')
+    # wiki_article(title='Superintelligence', img={'filename': 'superbird.png',
+    #                                              'description': 'computer prediction of \"superintelligence\"'},
+    #              engine='cushman-alpha')
 
 
 if __name__ == "__main__":

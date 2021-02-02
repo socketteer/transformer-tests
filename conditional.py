@@ -42,6 +42,12 @@ def event_probs(prompt, events, engine='ada'):
     normal_probs = normalize(probs)
     return probs, normal_probs
 
+
+# like event_probs, returns conditional probabilities (normalized & unnormalized) for each token occurring after prompt
+def token_probs(prompt, tokens, engine='ada'):
+    pass
+
+
 # returns a list of positions and counterfactual probability of token at position
 # if token is not in top_logprobs, probability is treated as 0
 # all positions if actual_token=None, else only positions where the actual token in response is actual_token

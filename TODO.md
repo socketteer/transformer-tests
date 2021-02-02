@@ -1,13 +1,13 @@
 ##alternet
 save generation metadata
 
+
+
 ###wikipedia
 
-mask for first character
+threading for parallel generation
 
 bold first instance of title in introduction
-
-section text
 
 stubs
 
@@ -15,7 +15,11 @@ categories
 
 infobox
 
-images?
+generate references
+
+fix categories html
+
+images
 
 ###google
 

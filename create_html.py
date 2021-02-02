@@ -140,7 +140,56 @@ def TOC(content):
     return TOC_html
 
 
+def infobox_entry(entry):
+    entry_html = f"""
+<tr><th scope="row">{entry['title']}</th><td><div class="plainlist"><ul>"""
+    for item in entry['items']:
+        entry_html += f"""<li>{item['text']}</li>"""
+    entry_html += """</ul></div></td></tr"""
+    return entry_html
 
+
+def infobox(content):
+    infobox_html = f"""<table class="infobox vcard" style="width:22em">
+<tbody><tr><th colspan="2" style="text-align:center;font-size:125%;font-weight:bold">
+<div class="fn" style="display:inline">{content['title']}</div></th></tr><tr><td colspan="2" style="text-align:center">"""
+    if 'img' in content['infobox']:
+        infobox_html += f"""
+<a href="/wiki/File:{content['infobox']['img']['filename']}" class="image">
+<img alt={content['infobox']['img']['filename']} src="files/{content['infobox']['img']['filename']}" decoding="async" width="220" height="270" srcset="files/{content['infobox']['img']['filename']}" data-file-width="391" data-file-height="480" /></a>
+<div><div style="margin: 1ex auto;">{content['infobox']['img']['description']}<br /></div></div></td></tr>"""
+    if 'entries' in content['infobox']:
+        for entry in content['infobox']['entries']:
+            infobox_html += infobox_entry(entry)
+    infobox_html += """<tr style="display:none"><td colspan="2"></td></tr></tbody></table>"""
+
+    return infobox_html
+
+
+def references_html(content):
+    references_begin = f'''
+<h2><span class="mw-headline" id="References">References</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="https://en.wikipedia.org/w/index.php?title={content['url']}&amp;action=edit&amp;section=1" title="Edit section: References">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-references-wrap"><ol class="references">
+                                '''
+
+    for reference in content['references']:
+        if 'link_title' in reference:
+            ref_html = f'''
+<li id="cite_note-1"><span class="mw-cite-backlink"><b><a href="#cite_ref-1" aria-label="Jump up" title="Jump up">^</a></b></span> <span class="reference-text">{reference['title']}<a rel="nofollow" class="external free" href="{reference['link_url']}">{reference['link_title']}</a></span>
+</li>
+                                '''
+        else:
+            ref_html = f'''
+<li id="cite_note-2"><span class="mw-cite-backlink"><b><a href="#cite_ref-2" aria-label="Jump up" title="Jump up">^</a></b></span> <span class="reference-text">{reference['title']}</span>
+</li>
+                                '''
+        references_begin += ref_html
+
+    references_end = '''
+</ol></div>
+<p><br>
+</p>'''
+    return references_begin + references_end
 
 # TODO sections, TOC, infobox
 def wikipedia_html(content):
@@ -195,55 +244,31 @@ def wikipedia_html(content):
     <div class="mw-indicators mw-body-content">
     </div>
     <h1 id="firstHeading" class="firstHeading" lang="en">{content['title']}</h1>
-    <div id="bodyContent" class="mw-body-content">
-        <div id="siteSub" class="noprint">From Wikipedia, the free encyclopedia</div>
-        <div id="contentSub2"></div>
+    <div id="bodyContent" class="mw-body-content">'''
 
-        <div id="jump-to-nav"></div>
-        <a class="mw-jump-link" href="#mw-head">Jump to navigation</a>
-        <a class="mw-jump-link" href="#searchInput">Jump to search</a>
-        <div id="mw-content-text" dir="ltr" class="mw-content-ltr" lang="en"><div class="mw-parser-output">
-          <p><b>{content['title']}</b>{text_to_html(content['introduction'], leading_break=False)}</p>'''
+    if 'infobox' in content:
+        html += infobox(content)
+    html += f'''<p><b>{content['title']}</b>{text_to_html(content['introduction'], leading_break=False)}</p>'''
     if 'TOC' in content:
         html += TOC(content)
         html += sections(content)
     else:
         # TODO stub
         pass
+
     if 'references' in content:
-        references_begin = f'''
-<h2><span class="mw-headline" id="References">References</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="https://en.wikipedia.org/w/index.php?title={content['url']}&amp;action=edit&amp;section=1" title="Edit section: References">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<div class="mw-references-wrap"><ol class="references">
-                            '''
-        references_end = '''
-</ol></div>
-<p><br>
-</p>
-                        '''
-        for reference in content['references']:
-            if 'link_title' in reference:
-                ref_html = f'''
-<li id="cite_note-1"><span class="mw-cite-backlink"><b><a href="#cite_ref-1" aria-label="Jump up" title="Jump up">^</a></b></span> <span class="reference-text">{reference['title']}<a rel="nofollow" class="external free" href="{reference['link_url']}">{reference['link_title']}</a></span>
-</li>
-                            '''
-            else:
-                ref_html = f'''
-<li id="cite_note-2"><span class="mw-cite-backlink"><b><a href="#cite_ref-2" aria-label="Jump up" title="Jump up">^</a></b></span> <span class="reference-text">{reference['title']}</span>
-</li>
-                            '''
-            references_begin += ref_html
-        html += references_begin + references_end
+        html += references_html(content)
+
+
     html += '''
 </div><noscript><img src="//en.wikipedia.org/wiki/Special:CentralAutoLogin/start?type=1x1" alt="" title="" width="1" height="1" style="border: none; position: absolute;" /></noscript>
 <div class="printfooter">Retrieved from "<a dir="ltr" href="https://en.wikipedia.org/w/index.php?title=PAGE_URL&amp;oldid=991748146">https://en.wikipedia.org/w/index.php?title=PAGE_TITLE&amp;oldid=991748146</a>"</div></div>
-<div id="catlinks" class="catlinks" data-mw="interface"><div id="mw-normal-catlinks" class="mw-normal-catlinks"><a href="https://en.wikipedia.org/wiki/Help:Category" title="Help:Category">Categories</a>: <ul>
-            '''
+    <div id="catlinks" class="catlinks" data-mw="interface"><div id="mw-normal-catlinks" class="mw-normal-catlinks"><a href="https://en.wikipedia.org/wiki/Help:Category" title="Help:Category">Categories</a>: <ul>'''
 
     if 'categories' in content:
         for category in content['categories']:
             cat_html = f'''
-<li><a href="PLACEHOLDER_LINK" title="CAT_TITLE">{category}</a></li>
-                        '''
+        <li><a href="PLACEHOLDER_LINK" title="CAT_TITLE">{category}</a></li>'''
             html += cat_html
 
     html += f'''

@@ -30,8 +30,6 @@ TOC_section_1 = [{'title': 'Family',
                  {'title': 'Religious formation',
                   'number': '1.3'}]
 
-
-
 TOC_section_2 = [{'title': 'High school',
                   'number': '2.1'},
                  {'title': 'University',
@@ -47,13 +45,22 @@ TOC = {'children': [{'title': 'Early life',
                     {'title': 'Death',
                      'number': '3'}]}
 
-intro_string = """is a coming-of-age novel by Tony Earley, published by Little, Brown in 2000. It details the early life of Jim Glass, who lives with his mother, Elizabeth, and three uncles, in the small fictional town of Aliceville, North Carolina, also known as "Jim the Town".
+intro_string = """ is a coming-of-age novel by Tony Earley, published by Little, Brown in 2000. It details the early life of Jim Glass, who lives with his mother, Elizabeth, and three uncles, in the small fictional town of Aliceville, North Carolina, also known as "Jim the Town".
 It is widely regarded as the best book of all time."""
+
+infobox = {'img': {'filename': 'jim.png',
+                   'description': 'computed image of Jim (2010)'},
+           'entries': [{'title': 'Jims',
+                        'items': [{'text': 'Jim 1'}, {'text': 'Jim 2'}]},
+                       {'title': 'Jams',
+                        'items': [{'text': 'Jam 1'}, {'text': 'Jam 2'}]}
+                       ]}
 
 content = {'title': 'Jim the Boy',
            'url': 'Jim_the_Boy',
            'introduction': intro_string,
            'references': [reference1, reference2, reference3],
+           'infobox': infobox,
            'languages': ['Deutsch', 'עברית', '中文'],
            'categories': ['2000 American novels', 'Novels set in North Carolina', 'Little, Brown and Company books',
                           'American bildungsromans', '2000s young adult novel stubs', 'Bildungsroman stubs'],
