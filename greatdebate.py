@@ -48,7 +48,7 @@ positive_response =  result["choices"][0]['text']
 
 prompt_2 = f"Hi All, my name is {debators[1]}, it is my great pleasure to lend my perspective to this great debate. There is an important question facing our species. It is absolutely critical that we can arrive at a good answer to this question. I have thought about it for a long time, and I know a good answer.The question is: {question} The answer is no because:"
 result = gpt_util.query(prompt_2, engine, max_tokens = 100)
-negative_response =  result["choices"][0]['text']
+negative_response = result["choices"][0]['text']
 
 print(positive_response)
 print(negative_response)

@@ -113,7 +113,10 @@ def generate_wiki_intro(content, engine):
     prompt2 = f'''I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
     The article introduction reads:
     "{content['title']} From Wikipedia, the free encyclopedia The {content['title']}'''
-    # prompt = prompt2
+    prompt3 = f'''I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
+    The article introduction reads:
+    "{content['title']} From Wikipedia, the free encyclopedia'''
+    prompt = prompt3
 
     content['title_token'] = tokenize(content['title'])[0]
     anti_repetition_mask = {content['title_token']: -100,
@@ -123,8 +126,9 @@ def generate_wiki_intro(content, engine):
                             t_was: 50,
                             t_are: 50,
                             t_oparen: 40}
+    intro_opening_mask = {**intro_first_token_mask, **{content['title_token']: 42}}
     # anti_repetition_mask = logit_mask(anti_repetition_mask)
-    response = api_call(prompt=prompt, engine=engine, max_tokens=1, mask=anti_repetition_mask, temperature=0.6)
+    response = api_call(prompt=prompt, engine=engine, max_tokens=1, mask=intro_opening_mask, temperature=0.6)
     first_token = response.choices[0]["text"]
     prompt += (' ' + first_token)
     response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.8,
@@ -273,8 +277,7 @@ def lookahead(items, index):
         return 'pop'
 
 
-# TODO always keep TOC in context window
-# TODO error / try again if empty or generate multiple?
+# TODO stop at "References"
 def generate_section(node, content, engine, toc=True):
     for i, child in enumerate(node["children"]):
         content['sections_text'] += '\n\n'
@@ -290,8 +293,8 @@ def generate_section(node, content, engine, toc=True):
         content['sections_text'] += child['title'] + '\n'
 
         intro_and_TOC = content['title'] + content['introduction'] + content['TOC_plaintext']
-        if len(intro_and_TOC + content['sections_text']) > 6000:
-            sections_window = content['sections_text'][-(6000-len(intro_and_TOC)):]
+        if len(intro_and_TOC + content['sections_text']) > 5500:
+            sections_window = content['sections_text'][-(5500-len(intro_and_TOC)):]
         else:
             sections_window = content['sections_text']
         prompt = intro_and_TOC + sections_window
@@ -299,9 +302,11 @@ def generate_section(node, content, engine, toc=True):
         response = api_call(prompt=prompt, engine=engine, max_tokens=1,
                             temperature=0.8, mask=section_begin_mask)
         first_token = response.choices[0]["text"]
-        response = api_call(prompt=prompt + first_token, engine=engine, max_tokens=500,
-                            temperature=0.8, stop=stop, logprobs=100)
-        child['text'] = first_token + response.choices[0]["text"]
+        # response = api_call(prompt=prompt + first_token, engine=engine, max_tokens=500,
+        #                     temperature=0.8, stop=stop, logprobs=100)
+        response_text = generate_until_length(prompt=prompt + first_token, engine=engine, max_tokens=500,
+                                              temperature=0.8, stop=stop, min_length=400, retry_length=30)
+        child['text'] = first_token + response_text
         #print('article text: {' + content['article_text'][-4000:] + '}')
         #print('section text: {' + child['text'] + '}')
         content['sections_text'] += child['text']
@@ -347,8 +352,30 @@ def generate_wiki_article(content, engine='curie', TOC='True', sections='False',
             generate_sections(content, prompt_after_intro, engine)
 
 
-def generate_until_length(min_length, tries):
-    pass
+# generates a continuation with minimum length
+# if len(continuation) < min_length, continues generation or starts over if len(continuation) < retry_length
+# TODO move to gpt_util
+def generate_until_length(prompt, engine="curie", n=1, temperature=0.8, max_tokens=100, logprobs=0,
+                          stop=None, mask=None, min_length=100, retry_length=None, max_attempts=3):
+    attempts = 0
+    response_text = ''
+    while attempts < max_attempts:
+        response = api_call(prompt, engine, n, temperature, max_tokens, logprobs, stop, mask)
+        attempts += 1
+        response_text = response.choices[0]["text"]
+        if retry_length is not None and len(response_text) < retry_length:
+            continue
+        else:
+            while attempts < max_attempts and len(response_text) < min_length:
+                appended_prompt = prompt + response_text
+                response = api_call(appended_prompt, engine, n, temperature, max_tokens, logprobs, stop, mask)
+                attempts += 1
+                response_text += response.choices[0]["text"]
+            #print('attempts: ', attempts)
+            return response_text
+    print('response never met retry length')
+    return response_text
+
 
 
 def google_search(engine='curie'):

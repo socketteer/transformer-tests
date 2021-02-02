@@ -1,3 +1,7 @@
+#############
+# wikipedia #
+#############
+
 t_0 = 15
 t_1 = 16
 t_2 = 17
@@ -35,10 +39,19 @@ t_was = 9776
 t_are = 533
 t_oparen = 7
 t_From = 4863
+t_A = 32
+t_An = 2025
+t_The = 464
 
 t_Browse = 32635
 
 t_References = 19927
+
+
+intro_first_token_mask = {t_A: 40,
+                          t_An: 40,
+                          t_The: 40}
+
 
 # used at beginning of sections to prevent first token from being a number or newline
 section_begin_mask = {**anti_num_mask, **{t_NEWLINE: -100}}
@@ -51,7 +64,7 @@ TOC_first_token_mask = {t_2: -100,
 
 TOC_first_line_mask = {t_2: -100}
 
-TOC_secondline_mask = {t_point: 95, t_2: 90}
+TOC_secondline_mask = {t_point: 96, t_2: 90}
 
 # TODO discourages infinite siblings but encourages infinite nesting
 # TODO forbid more than 3 levels of nesting?
@@ -78,6 +91,14 @@ DATE_MASK = {12128: 100,
              19117: 100,
              20795: 100,
              10707: 100}
+
+
+
+
+
+##############
+# byte masks #
+##############
 
 lowercase_mask = {64: 100,
                   65: 100,

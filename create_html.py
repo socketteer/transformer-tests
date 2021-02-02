@@ -1,4 +1,4 @@
-from html_util import text_to_html
+from html_util import text_to_html, bold_first_instance
 
 
 def google_search_html(query, results):
@@ -248,7 +248,8 @@ def wikipedia_html(content):
 
     if 'infobox' in content:
         html += infobox(content)
-    html += f'''<p><b>{content['title']}</b>{text_to_html(content['introduction'], leading_break=False)}</p>'''
+    #html += f'''<p><b>{content['title']}</b>{text_to_html(content['introduction'], leading_break=False)}</p>'''
+    html += f'''<p>{bold_first_instance(content['title'], text_to_html(content['introduction'], leading_break=False))}</p>'''
     if 'TOC' in content:
         html += TOC(content)
         html += sections(content)

@@ -5,9 +5,9 @@ save generation metadata
 
 ###wikipedia
 
-threading for parallel generation
+arbitrary initialization
 
-bold first instance of title in introduction
+threading for parallel generation
 
 stubs
 
