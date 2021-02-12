@@ -12,6 +12,7 @@ from masks import *
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
+
 def split_prompt_template(prompt, start_delimiter='{', end_delimiter='}'):
     parts = re.split(rf"{start_delimiter}", prompt)
     prompt_sections = []
@@ -45,7 +46,7 @@ def api_call(prompt, engine="curie", n=1, temperature=0.8, max_tokens=100, logpr
     )
 
 
-#TODO logit bias for websites
+# TODO logit bias for websites
 def query_google(search_query, engine="curie", num_results=1):
     with open("alternet/prompts/google_prompt_1.txt") as f:
         prompt = f.read()
@@ -134,8 +135,12 @@ def generate_wiki_intro(content, engine):
     response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.8,
                         stop=["\"\n", "\" \n"],
                         logprobs=100)
-
     introduction = extract_section_text(response, prompt, stop_sequence='\"')
+
+    # response = generate_until_length(prompt=prompt, engine=engine, max_tokens=400, temperature=0.8,
+    #                                  stop=["\"\n", "\" \n"],
+    #                                  logprobs=100, min_length=400, retry_length=30)
+    # introduction = response
 
     content['introduction'] = ' ' + first_token + introduction
 
@@ -175,14 +180,14 @@ def generate_TOC(content, prompt_after_intro, engine='curie'):
     if len(content["flattened_TOC"]) > 25:
         print('long TOC...')
         exit(0)
-    #toc_items = content["TOC_plaintext"].splitlines()
+    # toc_items = content["TOC_plaintext"].splitlines()
     content["TOC"] = {}
     content["TOC"]["children"] = []
     content["TOC_index"] = 0
     TOC_entry(parent=content["TOC"], content=content)
 
     # print('\n\n')
-    #print(content["TOC"])
+    # print(content["TOC"])
 
 
 def process_TOC_plaintext(content):
@@ -255,23 +260,23 @@ def TOC_entry(parent, content):
 
 
 def lookahead(items, index):
-    #print(items[index])
+    # print(items[index])
     if index + 1 == len(items):
-        #print('lookahead eol 1')
+        # print('lookahead eol 1')
         return 'endOfList'
     try:
         current_num = items[index]["number"]
-        #print('next: ', items[index+1])
-        next_num = items[index+1]["number"]
+        # print('next: ', items[index+1])
+        next_num = items[index + 1]["number"]
     except IndexError:
-        #print('index error splitting num in lookahead')
+        # print('index error splitting num in lookahead')
         return 'endOfList'
     if len(current_num) == len(next_num):
         return 'sibling'
     elif len(current_num) < len(next_num):
         return 'child'
     elif len(next_num) == 0:
-        #print('lookahead eol 2')
+        # print('lookahead eol 2')
         return 'endOfList'
     else:
         return 'pop'
@@ -286,19 +291,19 @@ def generate_section(node, content, engine, toc=True):
             content['sections_text'] += child['number'] + ' '
             # TODO get next title from flat list instead
             if i + 1 < len(node['children']):
-                stop.append(node['children'][i+1]['title'])
-                stop.append(node['children'][i+1]['number'] + ' ' + node['children'][i+1]['title'])
-                stop.append(node['children'][i+1]['number'] + node['children'][i+1]['title'])
+                stop.append(node['children'][i + 1]['title'])
+                stop.append(node['children'][i + 1]['number'] + ' ' + node['children'][i + 1]['title'])
+                stop.append(node['children'][i + 1]['number'] + node['children'][i + 1]['title'])
 
         content['sections_text'] += child['title'] + '\n'
 
         intro_and_TOC = content['title'] + content['introduction'] + content['TOC_plaintext']
         if len(intro_and_TOC + content['sections_text']) > 5500:
-            sections_window = content['sections_text'][-(5500-len(intro_and_TOC)):]
+            sections_window = content['sections_text'][-(5500 - len(intro_and_TOC)):]
         else:
             sections_window = content['sections_text']
         prompt = intro_and_TOC + sections_window
-        #print('prompt: ', prompt)
+        # print('prompt: ', prompt)
         response = api_call(prompt=prompt, engine=engine, max_tokens=1,
                             temperature=0.8, mask=section_begin_mask)
         first_token = response.choices[0]["text"]
@@ -307,8 +312,8 @@ def generate_section(node, content, engine, toc=True):
         response_text = generate_until_length(prompt=prompt + first_token, engine=engine, max_tokens=500,
                                               temperature=0.8, stop=stop, min_length=400, retry_length=30)
         child['text'] = first_token + response_text
-        #print('article text: {' + content['article_text'][-4000:] + '}')
-        #print('section text: {' + child['text'] + '}')
+        # print('article text: {' + content['article_text'][-4000:] + '}')
+        # print('section text: {' + child['text'] + '}')
         content['sections_text'] += child['text']
         if 'children' in child:
             generate_section(child, content, engine, toc)
@@ -324,7 +329,6 @@ def generate_sections(content, prompt_after_intro, engine, toc=True):
 
 # TODO use fewshot?
 def generate_categories(content, prompt_after_intro, engine):
-
     categories_prompt_frag = f'''" 
     The article belongs to the following Categories: "'''
 
@@ -343,7 +347,6 @@ def generate_infobox(content, prompt_after_intro, engine):
 
 # TODO threading
 def generate_wiki_article(content, engine='curie', TOC='True', sections='False', start_text=None, infobox=False):
-
     prompt_after_intro = generate_wiki_intro(content, engine)
 
     if TOC:
@@ -371,11 +374,10 @@ def generate_until_length(prompt, engine="curie", n=1, temperature=0.8, max_toke
                 response = api_call(appended_prompt, engine, n, temperature, max_tokens, logprobs, stop, mask)
                 attempts += 1
                 response_text += response.choices[0]["text"]
-            #print('attempts: ', attempts)
+            # print('attempts: ', attempts)
             return response_text
     print('response never met retry length')
     return response_text
-
 
 
 def google_search(engine='curie'):
@@ -416,7 +418,7 @@ def create_article(engine='cushman-alpha'):
 
 
 def main():
-    #google_search(engine='davinci')
+    # google_search(engine='davinci')
     create_article(engine='cushman-alpha')
     # wiki_article(title='The Random Number God', engine='cushman-alpha')
     # wiki_article(title='The Internet', engine='cushman-alpha')

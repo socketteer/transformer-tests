@@ -7,7 +7,7 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 
 # returns the conditional probability of filter coming after prompt
-def filter_logprob(prompt, filter, engine='ada'):
+def conditional_logprob(prompt, filter, engine='ada'):
     combined = prompt + filter
     response = openai.Completion.create(
         engine=engine,
@@ -22,7 +22,6 @@ def filter_logprob(prompt, filter, engine='ada'):
 
     positions = response.choices[0]["logprobs"]["text_offset"]
     logprobs = response.choices[0]["logprobs"]["token_logprobs"]
-    # tokens = response.choices[0]["logprobs"]["tokens"]
 
     word_index = positions.index(len(prompt))
 
@@ -36,7 +35,7 @@ def filter_logprob(prompt, filter, engine='ada'):
 def event_probs(prompt, events, engine='ada'):
     probs = []
     for event in events:
-        logprob = filter_logprob(prompt, event, engine)
+        logprob = conditional_logprob(prompt, event, engine)
         probs.append(logprobs_to_probs(logprob))
 
     normal_probs = normalize(probs)
@@ -79,7 +78,7 @@ def substring_probs(preprompt, content, filter, quiet=0):
         index += len(word) + 1
         substring = content[:(index - 1)]
         prompt = preprompt + substring
-        logprob = filter_logprob(prompt, filter)
+        logprob = conditional_logprob(prompt, filter)
         logprobs.append(logprob)
         substrings.append(substring)
         if not quiet:
@@ -98,6 +97,12 @@ def n_top_logprobs(preprompt, content, filter, n=5, quiet=0):
                     'logprob': logprobs[sorted_logprobs[-(i + 1)]]})
 
     return top
+
+
+def decibels(prior, evidence, target, engine='ada'):
+    prior_target_logprob = conditional_logprob(prompt=prior, filter=target, engine=engine)
+    evidence_target_logprob = conditional_logprob(prompt=evidence, filter=target, engine=engine)
+    return (evidence_target_logprob - prior_target_logprob), prior_target_logprob, evidence_target_logprob
 
 
 def main():
