@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 
-def init_logs(logfile=None):
+def init_logs(logfile=None, stdout=True):
     if logfile is None:
         logfile = f"logs/{timestamp()}.log"
 
@@ -28,7 +28,8 @@ def init_logs(logfile=None):
                         datefmt='%Y-%m-%d %H:%M:%S',
                         level=logging.INFO)
     # Also log to stdout
-    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    if stdout:
+        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
 def what_is_this_thing(thing):
@@ -178,7 +179,7 @@ def json_open(filename):
 def json_create(filename, data=None):
     data = data if data else []
     with open(filename, 'w') as f:
-        json.dump(data, f)
+        json.dump(data, f, indent=4)
 
 
 def json_append_dict(filename, data_dict):

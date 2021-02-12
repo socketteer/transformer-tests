@@ -1,5 +1,11 @@
 # transformer-tests
 
+Code unkempt. Experiments in progress.
+
+
+
+# OpenAI docs
+
 ---
 
 ### parameters
