@@ -261,21 +261,21 @@ def wikipedia_html(content):
         html += references_html(content)
 
 
-    html += '''
-</div><noscript><img src="//en.wikipedia.org/wiki/Special:CentralAutoLogin/start?type=1x1" alt="" title="" width="1" height="1" style="border: none; position: absolute;" /></noscript>
-<div class="printfooter">Retrieved from "<a dir="ltr" href="https://en.wikipedia.org/w/index.php?title=PAGE_URL&amp;oldid=991748146">https://en.wikipedia.org/w/index.php?title=PAGE_TITLE&amp;oldid=991748146</a>"</div></div>
-    <div id="catlinks" class="catlinks" data-mw="interface"><div id="mw-normal-catlinks" class="mw-normal-catlinks"><a href="https://en.wikipedia.org/wiki/Help:Category" title="Help:Category">Categories</a>: <ul>'''
-
-    if 'categories' in content:
-        for category in content['categories']:
-            cat_html = f'''
-        <li><a href="PLACEHOLDER_LINK" title="CAT_TITLE">{category}</a></li>'''
-            html += cat_html
+#     html += '''
+# </div><noscript><img src="//en.wikipedia.org/wiki/Special:CentralAutoLogin/start?type=1x1" alt="" title="" width="1" height="1" style="border: none; position: absolute;" /></noscript>
+# <div class="printfooter">Retrieved from "<a dir="ltr" href="https://en.wikipedia.org/w/index.php?title=PAGE_URL&amp;oldid=991748146">https://en.wikipedia.org/w/index.php?title=PAGE_TITLE&amp;oldid=991748146</a>"</div></div>
+#     <div id="catlinks" class="catlinks" data-mw="interface"><div id="mw-normal-catlinks" class="mw-normal-catlinks"><a href="https://en.wikipedia.org/wiki/Help:Category" title="Help:Category">Categories</a>: <ul>'''
+#
+#     if 'categories' in content:
+#         for category in content['categories']:
+#             cat_html = f'''
+#         <li><a href="PLACEHOLDER_LINK" title="CAT_TITLE">{category}</a></li>'''
+#             html += cat_html
 
     html += f'''
 </ul></div></div>
-    </div>
-</div>
+    </div>'''
+    html += ''''</div>
 <div id="mw-data-after-content">
     <div class="read-more-container"></div>
 </div>

@@ -50,48 +50,71 @@ Roish: Iro wonderro ifro thero languagero modelro canro everro getro thero patte
 English: The weather is lovely!
 Roish:'''
 
-correct_roish = 'Thero weatherro isro lovelyro!'
+correct_roish = ' Thero weatherro isro lovelyro!'
 
 
-def roish_test(engine='cushman-alpha'):
+def roish_test(engine='ada'):
     # correct_logprob_control = filter_logprob(prompt=roish_noinfo, filter=correct_roish, engine=engine)
     # correct_logprob_0shot = filter_logprob(prompt=roish_0shot, filter=correct_roish, engine=engine)
     # correct_logprob_halfshot = filter_logprob(prompt=roish_halfshot, filter=correct_roish, engine=engine)
     # correct_logprob_1shot = filter_logprob(prompt=roish_1shot, filter=correct_roish, engine=engine)
     # correct_logprob_2shot = filter_logprob(prompt=roish_2shot, filter=correct_roish, engine=engine)
 
-    decibels_0shot, control_logprob, correct_logprob_0shot = decibels(prior=roish_noinfo, evidence=roish_0shot,
+    zero_shot_dB, control_logprob, zero_shot_logprob = decibels(prior=roish_noinfo, evidence=roish_0shot,
                                                                       target=correct_roish, engine=engine)
 
-    decibels_halfshot, _, correct_logprob_halfshot = decibels(prior=roish_noinfo, evidence=roish_halfshot,
+    half_shot_dB, _, half_shot_logprob = decibels(prior=roish_noinfo, evidence=roish_halfshot,
                                                                       target=correct_roish, engine=engine)
 
-    decibels_1shot, _, correct_logprob_1shot = decibels(prior=roish_noinfo, evidence=roish_1shot,
+    one_shot_dB, _, one_shot_logprob = decibels(prior=roish_noinfo, evidence=roish_1shot,
                                                                       target=correct_roish, engine=engine)
 
-    decibels_2shot, control_logprob, correct_logprob_2shot = decibels(prior=roish_noinfo, evidence=roish_2shot,
+    two_shot_dB, control_logprob, two_shot_logprob = decibels(prior=roish_noinfo, evidence=roish_2shot,
                                                                       target=correct_roish, engine=engine)
 
-    decibels_10shot, control_logprob, correct_logprob_10shot = decibels(prior=roish_noinfo, evidence=roish_10shot,
+    ten_shot_dB, control_logprob, ten_shot_logprob = decibels(prior=roish_noinfo, evidence=roish_10shot,
                                                                       target=correct_roish, engine=engine)
 
     print('\nengine:', engine)
-    print(f'control correct logprob: {control_logprob:.3f}')
-    print(f'0 shot correct logprob: {correct_logprob_0shot:.3f}; 0 shot provides {decibels_0shot:.3f} decibels of evidence over control.')
-    print(f'half shot correct logprob: {correct_logprob_halfshot:.3f}; half shot provides {decibels_halfshot:.3f} decibels of evidence over control, '
-          f'{correct_logprob_halfshot - correct_logprob_0shot:.3f} decibels of evidence over 0-shot.')
-    print(f'1 shot correct logprob: {correct_logprob_1shot:.3f}; 1 shot provides {decibels_1shot:.3f} decibels of evidence over control, '
-          f'{correct_logprob_1shot - correct_logprob_0shot:.3f} decibels of evidence over 0-shot.')
-    print(f'2 shot correct logprob: {correct_logprob_2shot:.3f}; 2 shots provide {decibels_2shot:.3f} decibels of evidence over control, '
-          f'{correct_logprob_2shot - correct_logprob_0shot:.3f} decibels of evidence over 0-shot, and {correct_logprob_2shot - correct_logprob_1shot:.3f} decibels of evidence over 1-shot.')
+    # print(f'control correct logprob: {control_logprob:.3f}')
+    # print(f'0 shot correct logprob: {correct_logprob_0shot:.3f}; 0 shot provides {decibels_0shot:.3f} decibels of evidence over control.')
+    # print(f'half shot correct logprob: {correct_logprob_halfshot:.3f}; half shot provides {decibels_halfshot:.3f} decibels of evidence over control, '
+    #       f'{correct_logprob_halfshot - correct_logprob_0shot:.3f} decibels of evidence over 0-shot.')
+    # print(f'1 shot correct logprob: {correct_logprob_1shot:.3f}; 1 shot provides {decibels_1shot:.3f} decibels of evidence over control, '
+    #       f'{correct_logprob_1shot - correct_logprob_0shot:.3f} decibels of evidence over 0-shot.')
+    # print(f'2 shot correct logprob: {correct_logprob_2shot:.3f}; 2 shots provide {decibels_2shot:.3f} decibels of evidence over control, '
+    #       f'{correct_logprob_2shot - correct_logprob_0shot:.3f} decibels of evidence over 0-shot, and {correct_logprob_2shot - correct_logprob_1shot:.3f} decibels of evidence over 1-shot.')
+    # print(
+    #     f'10 shot correct logprob: {correct_logprob_10shot:.3f}; 10 shots provide {decibels_10shot:.3f} decibels of evidence over control, '
+    #     f'{correct_logprob_10shot - correct_logprob_0shot:.3f} decibels of evidence over 0-shot, {correct_logprob_10shot - correct_logprob_1shot:.3f} decibels of evidence over 1-shot, and'
+    #     f' {correct_logprob_10shot - correct_logprob_2shot:.3f} decibels of evidence over 2-shot.')
+
+    print('| Prompt   | Correct likelihood | +dB to control | +dB to 0-shot')
+    print('| ---------  | --------- |  --------- |  --------- | ')
+    print(f'| control | {control_logprob:.3f} | - | - |')
     print(
-        f'10 shot correct logprob: {correct_logprob_10shot:.3f}; 10 shots provide {decibels_10shot:.3f} decibels of evidence over control, '
-        f'{correct_logprob_10shot - correct_logprob_0shot:.3f} decibels of evidence over 0-shot, {correct_logprob_10shot - correct_logprob_1shot:.3f} decibels of evidence over 1-shot, and'
-        f' {correct_logprob_10shot - correct_logprob_2shot:.3f} decibels of evidence over 2-shot.')
+        f'| 0-shot | {zero_shot_logprob:.3f} | *{zero_shot_dB:.3f}* | - |')
+    print(
+        f'| 1-shot | {one_shot_logprob:.3f} | {one_shot_dB:.3f} | {one_shot_logprob - zero_shot_logprob:.3f} |')
+    print(
+        f'| half-shot |  {half_shot_logprob:.3f} | {half_shot_dB:.3f} | {half_shot_logprob - zero_shot_logprob:.3f} |')
+
+    print(
+        f'| 2-shot | {two_shot_logprob:.3f} | {two_shot_dB:.3f} | {two_shot_logprob - zero_shot_logprob:.3f} |')
+    print(
+        f'| 10-shot | {ten_shot_logprob:.3f} | {ten_shot_dB:.3f} | {ten_shot_logprob - zero_shot_logprob:.3f} |')
+
+    print(
+        f'\n| {engine} | {control_logprob:.3f} | {zero_shot_logprob:.3f} | {half_shot_logprob:.3f} '
+        f'| {one_shot_logprob:.3f} | {two_shot_logprob:.3f} | {ten_shot_logprob:.3f} | ')
+
+    print(
+        f'\n[{control_logprob:.3f}, {zero_shot_logprob:.3f}, {half_shot_logprob:.3f}, {one_shot_logprob:.3f}, '
+        f'{two_shot_logprob:.3f}, {ten_shot_logprob:.3f}]')
 
 
 roish_test(engine='ada')
 roish_test(engine='babbage')
 roish_test(engine='curie')
-roish_test(engine='cushman-alpha')
+#roish_test(engine='cushman-alpha')
 roish_test(engine='davinci')

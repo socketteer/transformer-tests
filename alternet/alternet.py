@@ -110,39 +110,31 @@ def extract_section_text(response, prompt, stop_sequence='\"'):
 def generate_wiki_intro(content, engine):
     prompt = f'''I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
     The article introduction reads:
-    "{content['title']} From Wikipedia, the free encyclopedia {content['title']}'''
-    prompt2 = f'''I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
-    The article introduction reads:
-    "{content['title']} From Wikipedia, the free encyclopedia The {content['title']}'''
-    prompt3 = f'''I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
-    The article introduction reads:
     "{content['title']} From Wikipedia, the free encyclopedia'''
-    prompt = prompt3
 
     content['title_token'] = tokenize(content['title'])[0]
-    anti_repetition_mask = {content['title_token']: -100,
-                            t_NEWLINE: -100,
-                            t_From: -100,
-                            t_is: 50,
-                            t_was: 50,
-                            t_are: 50,
-                            t_oparen: 40}
-    intro_opening_mask = {**intro_first_token_mask, **{content['title_token']: 42}}
-    # anti_repetition_mask = logit_mask(anti_repetition_mask)
-    response = api_call(prompt=prompt, engine=engine, max_tokens=1, mask=intro_opening_mask, temperature=0.6)
-    first_token = response.choices[0]["text"]
-    prompt += (' ' + first_token)
+
+    if 'introduction' not in content:
+        intro_opening_mask = {**intro_first_token_mask, **{content['title_token']: 42}}
+        response = api_call(prompt=prompt, engine=engine, max_tokens=1, mask=intro_opening_mask, temperature=0.6)
+        first_token = response.choices[0]["text"]
+        content['introduction'] = ' ' + first_token
+        prompt += content['introduction']
+    else:
+        content['introduction'] = ' ' + content['introduction']
+        prompt += content['introduction']
+
     response = api_call(prompt=prompt, engine=engine, max_tokens=400, temperature=0.8,
                         stop=["\"\n", "\" \n"],
                         logprobs=100)
-    introduction = extract_section_text(response, prompt, stop_sequence='\"')
+    introduction_rest = extract_section_text(response, prompt, stop_sequence='\"')
 
     # response = generate_until_length(prompt=prompt, engine=engine, max_tokens=400, temperature=0.8,
     #                                  stop=["\"\n", "\" \n"],
     #                                  logprobs=100, min_length=400, retry_length=30)
     # introduction = response
 
-    content['introduction'] = ' ' + first_token + introduction
+    content['introduction'] += introduction_rest
 
     return prompt + content['introduction']
 
@@ -346,7 +338,7 @@ def generate_infobox(content, prompt_after_intro, engine):
 
 
 # TODO threading
-def generate_wiki_article(content, engine='curie', TOC='True', sections='False', start_text=None, infobox=False):
+def generate_wiki_article(content, engine='curie', TOC=True, sections='False', start_text=None, infobox=False):
     prompt_after_intro = generate_wiki_intro(content, engine)
 
     if TOC:
@@ -390,17 +382,19 @@ def google_search(engine='curie'):
 # TODO infobox option
 # TODO set image
 
-def wiki_article(title, infobox=False, img=None, start_text=None, save_as='auto', engine='cushman-alpha'):
+def wiki_article(title, intro=None, infobox=False, img=None, start_text=None, intro_only=False, save_as='auto', engine='cushman-alpha'):
     content = {}
     content['title'] = title
     content['url'] = title.replace(" ", "_")
+    if intro is not None:
+        content['introduction'] = intro
     if infobox or (img is not None):
         content['infobox'] = {}
     if img is not None:
         content['infobox']['img'] = {}
         content['infobox']['img']['filename'] = img['filename']
         content['infobox']['img']['description'] = img['description']
-    generate_wiki_article(content, infobox=infobox, start_text=start_text, engine=engine)
+    generate_wiki_article(content, infobox=infobox, start_text=start_text, TOC=not intro_only, engine=engine)
     html = wikipedia_html(content)
     if save_as == 'auto':
         filename = f"alternet/wiki/{content['title']}-wikipedia-{engine}.html"
@@ -417,14 +411,32 @@ def create_article(engine='cushman-alpha'):
     wiki_article(title, engine=engine)
 
 
+where_dreams = ''' It was published on October 16, 1986. It was the last book Dr. Seuss ever published.
+It tells the story of a 'sleep creature' named Ted and his search for the place where dreams go when you die. It is also Seuss's response to the death of his close friend, Dr. Theodore Geisel, a.k.a. "Dr. Seuss". At the end, Ted sits at the feet of his good friend and, after recalling his experiences, decides to "stay a bit" with his friend and "rest awhile and then fly."'''
+
 def main():
     # google_search(engine='davinci')
-    create_article(engine='davinci')
+    #create_article(engine='curie')
+    # wiki_article(title='The Great Gatsby', intro='The Great Gatsby is a 1925 Jazz Age novel about the impossibility '
+    #                                               'of recapturing the past.', intro_only=True, engine='curie')
     # wiki_article(title='The Random Number God', engine='cushman-alpha')
     # wiki_article(title='The Internet', engine='cushman-alpha')
     # wiki_article(title='Wave-particle duality', img={'filename': 'waveparticle.png',
-    #                                 'description': 'computer prediction of \"wave-particle duality\"'},
-    #              engine='cushman-alpha')
+    #                                  'description': 'computer prediction of \"wave-particle duality\"'},
+    #               engine='davinci')
+    # wiki_article(title='Schizophrenia', img={'filename': 'schizophrenia.png',
+    #                                                  'description': 'computer prediction of \"schizophrenia\"'},
+    #              engine='davinci')
+    # wiki_article(title='Paperclip maximizer', img={'filename': 'paperclip2.png',
+    #                                          'description': 'computer prediction of \"an artificial intelligence manufactures an infinite number of paperclips, destroying everything\"'},
+    #              engine='davinci')
+    # wiki_article(title='Where Do Dreams Go When You Die?', intro=where_dreams,
+    #              img={'filename': 'dreamsgo.png', 'description': 'Where Do Dreams Go When You Die? By Dr. Seuss'},
+    #              engine='davinci')
+    # wiki_article(title='Treaty on the Prohibition of Artificial Intelligence', engine='davinci')
+    wiki_article(title='GPT-3', intro='Generative Pre-trained Transformer 3 (GPT-3) is an autoregressive language '
+                                      'model that uses deep learning to produce human-like text.', engine='davinci')
+    #wiki_article(title='Isaac Newton', engine='davinci')
     # wiki_article(title='Quantum mechanics', img={'filename': 'spookyquantum.png',
     #                                              'description': 'computer prediction of \"spooky quantum mechanics\"'},
     #              engine='cushman-alpha')
