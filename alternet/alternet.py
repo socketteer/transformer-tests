@@ -419,7 +419,7 @@ def create_article(engine='cushman-alpha'):
 
 def main():
     # google_search(engine='davinci')
-    create_article(engine='cushman-alpha')
+    create_article(engine='davinci')
     # wiki_article(title='The Random Number God', engine='cushman-alpha')
     # wiki_article(title='The Internet', engine='cushman-alpha')
     # wiki_article(title='Wave-particle duality', img={'filename': 'waveparticle.png',
