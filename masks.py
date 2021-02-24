@@ -64,7 +64,7 @@ TOC_first_token_mask = {t_2: -100,
 
 TOC_first_line_mask = {t_2: -100}
 
-TOC_secondline_mask = {t_point: 96, t_2: 90}
+TOC_secondline_mask = {t_1: 90, t_point: 96, t_2: 90}
 
 # TODO discourages infinite siblings but encourages infinite nesting
 # TODO forbid more than 3 levels of nesting?

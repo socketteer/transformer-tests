@@ -109,8 +109,8 @@ def extract_section_text(response, prompt, stop_sequence='\"'):
 # TODO don't force title to come first, but bold first instance of title...
 def generate_wiki_intro(content, engine):
     prompt = f'''I click on the link "en.wikipedia.org/wiki/{content['url']}" and the Wikipedia page for {content['title']} loads in my browser. 
-    The article introduction reads:
-    "{content['title']} From Wikipedia, the free encyclopedia'''
+The article introduction reads:
+"{content['title']} From Wikipedia, the free encyclopedia'''
 
     content['title_token'] = tokenize(content['title'])[0]
 
@@ -141,9 +141,9 @@ def generate_wiki_intro(content, engine):
 
 def generate_TOC(content, prompt_after_intro, engine='curie'):
     toc_prompt_frag = f'''" 
-    The table of contents reads:
-    "Contents
-    1'''
+The table of contents reads:
+"Contents
+1'''
 
     toc_prompt = prompt_after_intro + toc_prompt_frag
     first_token_mask = TOC_first_token_mask
@@ -152,7 +152,7 @@ def generate_TOC(content, prompt_after_intro, engine='curie'):
                         stop=["\n", "\""])
     TOC_first_token = response.choices[0]["text"]
     TOC_firstline_prompt = toc_prompt + TOC_first_token
-    response = api_call(prompt=TOC_firstline_prompt, engine=engine, max_tokens=5, temperature=0.7, stop=["\"", "\n"],
+    response = api_call(prompt=TOC_firstline_prompt, engine=engine, max_tokens=10, temperature=0.7, stop=["\"", "\n"],
                         mask=TOC_first_line_mask)
     TOC_firstline = response.choices[0]["text"]
 
@@ -433,9 +433,11 @@ def main():
     # wiki_article(title='Where Do Dreams Go When You Die?', intro=where_dreams,
     #              img={'filename': 'dreamsgo.png', 'description': 'Where Do Dreams Go When You Die? By Dr. Seuss'},
     #              engine='davinci')
-    # wiki_article(title='Treaty on the Prohibition of Artificial Intelligence', engine='davinci')
-    wiki_article(title='GPT-3', intro='Generative Pre-trained Transformer 3 (GPT-3) is an autoregressive language '
-                                      'model that uses deep learning to produce human-like text.', engine='davinci')
+    #wiki_article(title='EleutherAI', engine='davinci')
+    wiki_article(title='EleutherAI', engine='davinci', intro='EleutherAI is a hacker collective that aims to build an open-source replica of GPT-3')
+
+    # wiki_article(title='GPT-3', intro='Generative Pre-trained Transformer 3 (GPT-3) is an autoregressive language '
+    #                                   'model that uses deep learning to produce human-like text.', engine='davinci')
     #wiki_article(title='Isaac Newton', engine='davinci')
     # wiki_article(title='Quantum mechanics', img={'filename': 'spookyquantum.png',
     #                                              'description': 'computer prediction of \"spooky quantum mechanics\"'},
