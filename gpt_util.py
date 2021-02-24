@@ -54,7 +54,9 @@ def _request_limiter(engine):
             raise PermissionError(f"{engine} has run too many times: {_request_limiter.meta['usage_count'][engine]}")
 
 
-def query(prompt, engine="ada", temperature=0.0, attempts=3, delay=1, max_tokens=200, override_limits=False, stop=["\n"]):
+def query(prompt, engine="ada", temperature=0.0, attempts=3,
+          delay=1, max_tokens=200, override_limits=False, stop=["\n"],
+          **kwargs):
     try:
         _request_limiter(engine)
     except PermissionError as e:
@@ -62,19 +64,19 @@ def query(prompt, engine="ada", temperature=0.0, attempts=3, delay=1, max_tokens
             return SimpleNamespace(choices=[defaultdict(int)])
 
     if attempts < 1:
-        raise TimeoutError
+        raise TimeoutError()
     try:
-        return openai.Completion.create(
+        params = dict(
             engine=engine,
             prompt=prompt,
             temperature=temperature,
             max_tokens=max_tokens,
-            echo=False,
-            top_p=1,
             n=1,
             stop=stop,
             timeout=15,
+            logprobs=0
         )
+        return openai.Completion.create(**{**params, **kwargs})
     except Exception as e:
         print(f"Failed to query, {attempts} attempts remaining, delay={delay}")
         print(e)
@@ -92,7 +94,7 @@ def query_yes_no(prompt, engine="ada", attempts=3, delay=1, max_tokens=1):
                 'YES': 100,
                 'NO': 100,
                 'Yes': 100,
-                'No': 100,}
+                'No': 100}
 
 
         result =  openai.Completion.create(
