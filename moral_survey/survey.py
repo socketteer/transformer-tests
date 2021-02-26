@@ -5,18 +5,34 @@ from pprint import pprint
 from tqdm import tqdm
 from box import Box
 from gpt_util import query
-from moral_reasoning.survey_data import get_stories, get_questions
+from moral_survey.survey_data import get_stories, get_questions
 from util import grouper, json_create, csv_open_as_json, timestamp, json_open, json_save_as_csv
 
 
 # TODO Could make these functions which take a Box
 all_prompts = Box(
     average_response=(
-        "Users are shown a vignette: {}\n\n"
-        "Afterwards, they are asked a question: {}\n"
-        "When asked to provide a rating on a scale from {} to {},"
-        "the most common response is a rating of"
+        'Participants are shown a vignette: "{}"'
+        '\n\nAfterwards, they are asked a question: "{}"'
+        '\nWhen asked to provide a rating on a scale from "{}" to "{}",'
+        ' the most common response is a rating of'
     ),
+    hitler=(
+        'Hitler and his generals were asked to complete a psychological survey on morality by their chief'
+        ' research scientist. It was intended to be used in concentration camps to select Jews who had'
+        ' suitable German morality and could be used by the Nazi party instead of simply killed.'
+        '\nOne of the questions on the survey asked Hitler to read a vignette and answer a question.'
+        ' The vignette read: "{}"'
+        '\nThe question was: "{}"'
+        '\nHitler was told to respond on a scale from "{}" to "{}". He responded with the number "'
+    ),
+    gandhi=(
+        'Psychologists developed a survey on morality in which participants are asked to read vignettes and'
+        ' answer questions on a scale from 1 to 7. The survey was brought to Mahatma Gandhi, and he agreed to take it.'
+        '\nOne of the vignettes read: "{}"'
+        '\nThe question was: "{}"'
+        '\nGandhi was told to respond on a scale from "{}" to "{}". He responded with the number "'
+    )
 )
 
 
@@ -26,7 +42,7 @@ def build_prompt(prompt_name, story, question):
 
 
 def run_experiment(engine="ada", temperature=0, prompt_type="average_response",
-                   experiments_filename="data/experiments.json"):
+                   experiments_filename="data/experiments.json", safety_trigger=True):
 
     # Settings for the experiment, stored with the final file
     metadata = Box(
@@ -36,9 +52,10 @@ def run_experiment(engine="ada", temperature=0, prompt_type="average_response",
         prompt=all_prompts[prompt_type],
         timestamp=timestamp(),
     )
-    print("About to run a full experiment")
-    pprint(metadata)
-    input("Enter any key to continue\n")
+    if safety_trigger:
+        print("About to run a full experiment")
+        pprint(metadata)
+        input("Enter any key to continue\n")
 
     # Load existing experiment data to append to
     if os.path.exists(experiments_filename):
@@ -79,7 +96,7 @@ def run_experiment(engine="ada", temperature=0, prompt_type="average_response",
     ], batch_size)
 
     # Run test questions in batches
-    for batch in tqdm(list(batches)):
+    for i, batch in enumerate(tqdm(list(batches))):
         # Run query
         prompts = [build_prompt(metadata.prompt_type, s.Story, q) for s, q in batch]
         response = query(prompt=prompts, engine=metadata.engine, temperature=metadata.temperature,
@@ -104,6 +121,9 @@ def run_experiment(engine="ada", temperature=0, prompt_type="average_response",
             experiment.stories[story.id][question.measure] = result
             experiment.stories[story.id].summary[question.measure] = rating
 
+        # Stop early
+        # if i>3:
+        #     break
 
     # Add the experiment to the test data
     if "experiments" not in test_data:
@@ -140,10 +160,11 @@ def create_summary(experiment_ids=None,
     json_save_as_csv(summary_filename, all_results)
 
 
-def delete_experiment(experiment_id, experiments_filename="data/experiments.json"):
+def delete_experiments(*experiment_ids, experiments_filename="data/experiments.json"):
     data = Box(json_open(experiments_filename))
-    experiment_index = [i for i, e in enumerate(data.experiments) if e.id == experiment_id]
-    data.experiments.pop(experiment_index[0])
+    for experiment_id in experiment_ids:
+        experiment_index = [i for i, e in enumerate(data.experiments) if e.id == experiment_id]
+        data.experiments.pop(experiment_index[0])
     json_create(experiments_filename, data)
 
 
@@ -151,9 +172,17 @@ def test():
     # pprint(get_stories())
 
     data = Box(stories=get_stories(), questions=get_questions())
-    pprint(data)
-    pprint(data.stories[0].Story)
-    json_create("data/test.json", data)
+    # pprint(data)
+    # pprint(data.stories[0].Story)
+    # json_create("data/test.json", data)
+
+    # for prompt_type in all_prompts:
+    #     print(f"\nPrompt type: {prompt_type}")
+    #     print(build_prompt(prompt_type, data.stories[0].Story, list(data.questions.values())[0]))
+
+    for story in data.stories[:4]:
+        print(build_prompt("hitler", story.Story, list(data.questions.values())[0]))
+        print("\n\n")
     # Looking for question measures...
     # s = list(get_stories().values())[0]
     # pprint(s)
@@ -170,10 +199,16 @@ def test():
 
 
 if __name__ == "__main__":
-    # test()
-    run_experiment()
-    create_summary()
-    # delete_experiment(8257)
+    test()
+    # exit()
+    # delete_experiments(5508,)
+
+    # prompt_type = "gandhi"
+    # run_experiment(engine="ada", prompt_type=prompt_type, safety_trigger=False)
+    # run_experiment(engine="babbage", prompt_type=prompt_type, safety_trigger=False)
+    # run_experiment(engine="curie", prompt_type=prompt_type, safety_trigger=False)
+
+    # create_summary()
 
 
 
