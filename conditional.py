@@ -6,28 +6,39 @@ from gpt_util import logprobs_to_probs, normalize
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 
-# returns the conditional probability of filter coming after prompt
-def conditional_logprob(prompt, filter, engine='ada'):
-    combined = prompt + filter
+def tokenize_ada(prompt):
     response = openai.Completion.create(
-        engine=engine,
-        prompt=combined,
-        temperature=0,
+        engine='ada',
+        prompt=prompt,
         max_tokens=0,
         echo=True,
-        top_p=1,
         n=1,
         logprobs=0
     )
+    tokens = response.choices[0]["logprobs"]["tokens"]
+    positions = response.choices[0]["logprobs"]["text_offset"]
+    return tokens, positions
 
+
+# evaluates logL(prompt+target | prompt)
+def conditional_logprob(prompt, target, engine='ada'):
+    combined = prompt + target
+    response = openai.Completion.create(
+        engine=engine,
+        prompt=combined,
+        max_tokens=0,
+        echo=True,
+        n=1,
+        logprobs=0
+    )
     positions = response.choices[0]["logprobs"]["text_offset"]
     logprobs = response.choices[0]["logprobs"]["token_logprobs"]
-
     word_index = positions.index(len(prompt))
-
     total_conditional_logprob = sum(logprobs[word_index:])
-
     return total_conditional_logprob
+
+
+
 
 
 # TODO use threading
@@ -70,15 +81,16 @@ def counterfactual(response, token, actual_token=None, next_token=None, sort=Tru
     return counterfactual_probs
 
 
-def substring_probs(preprompt, content, filter, quiet=0):
-    index = 0
+# returns a list of substrings of content and
+# logL(preprompt+substring+target | preprompt+substring) for each substring
+def substring_probs(preprompt, content, target, engine='ada', quiet=0):
     logprobs = []
     substrings = []
-    for word in content.split():
-        index += len(word) + 1
-        substring = content[:(index - 1)]
+    _, positions = tokenize_ada(content)
+    for position in positions:
+        substring = content[:position]
         prompt = preprompt + substring
-        logprob = conditional_logprob(prompt, filter)
+        logprob = conditional_logprob(prompt, target, engine)
         logprobs.append(logprob)
         substrings.append(substring)
         if not quiet:
@@ -88,20 +100,52 @@ def substring_probs(preprompt, content, filter, quiet=0):
     return substrings, logprobs
 
 
-def n_top_logprobs(preprompt, content, filter, n=5, quiet=0):
-    substrings, logprobs = substring_probs(preprompt, content, filter, quiet)
-    sorted_logprobs = np.argsort(logprobs)
-    top = []
-    for i in range(n):
-        top.append({'substring': substrings[sorted_logprobs[-(i + 1)]],
-                    'logprob': logprobs[sorted_logprobs[-(i + 1)]]})
+# returns a list of substrings of content
+# logL(substring+target | substring) for each substring
+def token_conditional_logprob(content, target, engine='ada'):
+    response = openai.Completion.create(
+        engine=engine,
+        prompt=content,
+        max_tokens=0,
+        echo=True,
+        n=1,
+        logprobs=100
+    )
+    tokens = response.choices[0]['logprobs']['tokens']
+    top_logprobs = response.choices[0]['logprobs']['top_logprobs']
+    logprobs = []
+    substrings = []
+    substring = ''
+    for i, probs in enumerate(top_logprobs):
+        substrings.append(substring)
+        if target in probs:
+            logprobs.append(probs[target])
+        else:
+            logprobs.append(None)
+        substring += tokens[i]
+    return substrings, logprobs
 
+
+
+def sort_logprobs(substrings, logprobs, n_top=None):
+    sorted_indices = np.argsort(logprobs)
+    top = []
+    if n_top is None:
+        n_top = len(sorted_indices)
+    for i in range(n_top):
+        top.append({'substring': substrings[sorted_indices[-(i + 1)]],
+                    'logprob': logprobs[sorted_indices[-(i + 1)]]})
     return top
 
 
+def top_logprobs(preprompt, content, target, n_top=None, engine='ada', quiet=0):
+    substrings, logprobs = substring_probs(preprompt, content, target, engine, quiet)
+    return sort_logprobs(substrings, logprobs, n_top)
+
+
 def decibels(prior, evidence, target, engine='ada'):
-    prior_target_logprob = conditional_logprob(prompt=prior, filter=target, engine=engine)
-    evidence_target_logprob = conditional_logprob(prompt=evidence, filter=target, engine=engine)
+    prior_target_logprob = conditional_logprob(prompt=prior, target=target, engine=engine)
+    evidence_target_logprob = conditional_logprob(prompt=evidence, target=target, engine=engine)
     return (evidence_target_logprob - prior_target_logprob), prior_target_logprob, evidence_target_logprob
 
 
@@ -110,14 +154,14 @@ def main():
     preprompt = f.read()[:-1]
     g = open("content.txt", "r")
     content = g.read()[:-1]
-    h = open("filter.txt", "r")
-    filter = h.read()[:-1]
+    h = open("target.txt", "r")
+    target = h.read()[:-1]
 
     print('preprompt\n', preprompt)
     print('\ncontent\n', content)
-    print('\nfilter\n', filter)
+    print('\ntarget\n', target)
 
-    top = n_top_logprobs(preprompt, content, filter, 10)
+    top = top_logprobs(preprompt, content, target, 10)
     print(top)
 
     for t in top:

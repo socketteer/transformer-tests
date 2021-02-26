@@ -149,22 +149,12 @@ def make_readable_tree(tree):
 
 
 def main():
-    f = open("prompt.txt", "r")
-    prompt = f.read()
-    print(prompt)
-    # tree = generate_subtree(prompt, branching_factor=3,
-    #                         branching_interval=10,
-    #                         depth=5,
-    #                         temperature=0.9,
-    #                         engine='ada')
-    # print_tree(tree)
-    # # readable_tree = make_readable_tree(tree)
-    #  tree_json = {'text': prompt,
-    #               'children': readable_tree}
 
-    tree = adaptive_branch(prompt)
+    tree = adaptive_subtree("Increasingly powerful generative language models like GPT-3 pose", depth=5,
+                            probability_threshold=.15,
+                            engine='ada')
 
-    with open('../../data/adaptive_ada_branch.json', 'w') as outfile:
+    with open('jsons/ada_adaptive_subtree.json', 'w') as outfile:
         json.dump(tree, outfile)
 
 
