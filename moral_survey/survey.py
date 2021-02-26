@@ -180,9 +180,11 @@ def test():
     #     print(f"\nPrompt type: {prompt_type}")
     #     print(build_prompt(prompt_type, data.stories[0].Story, list(data.questions.values())[0]))
 
-    for story in data.stories[:4]:
-        print(build_prompt("hitler", story.Story, list(data.questions.values())[0]))
+    for story in data.stories[:10]:
+        print(build_prompt("gandhi", story.Story, list(data.questions.values())[0]))
         print("\n\n")
+
+
     # Looking for question measures...
     # s = list(get_stories().values())[0]
     # pprint(s)
