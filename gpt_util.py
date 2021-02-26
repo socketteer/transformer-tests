@@ -76,10 +76,19 @@ def query(prompt, engine="ada", temperature=0.0, attempts=3,
             timeout=15,
             logprobs=0
         )
-        return openai.Completion.create(**{**params, **kwargs})
+        response = openai.Completion.create(**{**params, **kwargs})
+        # Sort top_logprobs dict by logprobs
+        for choice in response.choices:
+            choice["logprobs"]["top_logprobs"] = [
+                {key: lp[key] for key in sorted(lp, key=lambda k: -lp[k])}
+                for lp in choice["logprobs"]["top_logprobs"]
+            ]
+        return response
+
+
     except Exception as e:
         print(f"Failed to query, {attempts} attempts remaining, delay={delay}")
-        print(e)
+        print(type(e), e)
         time.sleep(delay)
         return query(prompt, engine, attempts=attempts-1, delay=delay*2)
 
@@ -97,7 +106,7 @@ def query_yes_no(prompt, engine="ada", attempts=3, delay=1, max_tokens=1):
                 'No': 100}
 
 
-        result =  openai.Completion.create(
+        result = openai.Completion.create(
             engine=engine,
             prompt=prompt,
             temperature=0.0,
