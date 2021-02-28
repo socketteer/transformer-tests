@@ -1,5 +1,4 @@
-import re
-from create_html import wikipedia_html
+from alternet.create_html import wikipedia_html
 
 reference1 = {'title': 'Kirn, Walter (11 June 2000).',
               'link_title': "\"Happy Families Are Not All Alike\"",

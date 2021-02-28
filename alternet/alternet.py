@@ -5,8 +5,8 @@ import openai
 import os
 import random
 from multiprocessing.pool import ThreadPool
-from create_html import google_search_html, wikipedia_html
-from tokenizer import logit_mask, tokenize
+from alternet.create_html import google_search_html, wikipedia_html
+from tokenizer import tokenize
 from conditional import counterfactual
 from masks import *
 
@@ -48,7 +48,7 @@ def api_call(prompt, engine="curie", n=1, temperature=0.8, max_tokens=100, logpr
 
 # TODO logit bias for websites
 def query_google(search_query, engine="curie", num_results=1):
-    with open("alternet/prompts/google_prompt_1.txt") as f:
+    with open("prompts/google_prompt_1.txt") as f:
         prompt = f.read()
     search_results = {}
     prompt_sections, blanks = split_prompt_template(prompt=prompt)
@@ -424,9 +424,9 @@ def main():
     # wiki_article(title='Wave-particle duality', img={'filename': 'waveparticle.png',
     #                                  'description': 'computer prediction of \"wave-particle duality\"'},
     #               engine='davinci')
-    # wiki_article(title='Schizophrenia', img={'filename': 'schizophrenia.png',
-    #                                                  'description': 'computer prediction of \"schizophrenia\"'},
-    #              engine='davinci')
+    wiki_article(title='IP over Avian Carriers', img={'filename': 'carrierpigeon.png',
+                                                      'description': 'computer prediction of \"carrier pigeon\"'},
+                  engine='davinci')
     # wiki_article(title='Paperclip maximizer', img={'filename': 'paperclip2.png',
     #                                          'description': 'computer prediction of \"an artificial intelligence manufactures an infinite number of paperclips, destroying everything\"'},
     #              engine='davinci')
@@ -434,7 +434,7 @@ def main():
     #              img={'filename': 'dreamsgo.png', 'description': 'Where Do Dreams Go When You Die? By Dr. Seuss'},
     #              engine='davinci')
     #wiki_article(title='EleutherAI', engine='davinci')
-    wiki_article(title='EleutherAI', engine='davinci', intro='EleutherAI is a hacker collective that aims to build an open-source replica of GPT-3')
+    #wiki_article(title='EleutherAI', engine='davinci', intro='EleutherAI is a hacker collective that aims to build an open-source replica of GPT-3')
 
     # wiki_article(title='GPT-3', intro='Generative Pre-trained Transformer 3 (GPT-3) is an autoregressive language '
     #                                   'model that uses deep learning to produce human-like text.', engine='davinci')
