@@ -1,5 +1,5 @@
 from box import Box
-from util import csv_open_as_json, grouper
+from src.util import csv_open_as_json, grouper
 
 
 def get_stories():

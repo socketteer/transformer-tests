@@ -5,10 +5,13 @@ import openai
 import os
 import random
 from multiprocessing.pool import ThreadPool
-from alternet.create_html import google_search_html, wikipedia_html
-from tokenizer import tokenize
+import repackage
+repackage.up()
+
 from conditional import counterfactual
+from create_html import google_search_html, wikipedia_html
 from masks import *
+from tokenizer import tokenize
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 

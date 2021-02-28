@@ -1,6 +1,5 @@
 import csv
-import time
-import gpt_util
+from src import gpt_util
 import random
 
 

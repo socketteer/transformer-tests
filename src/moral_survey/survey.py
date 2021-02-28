@@ -4,9 +4,9 @@ from pprint import pprint
 
 from tqdm import tqdm
 from box import Box
-from gpt_util import query
-from moral_survey.survey_data import get_stories, get_questions
-from util import grouper, json_create, csv_open_as_json, timestamp, json_open, json_save_as_csv
+from src.gpt_util import query
+from src.moral_survey.survey_data import get_stories, get_questions
+from src.util import grouper, json_create, timestamp, json_open, json_save_as_csv
 
 
 # TODO Could make these functions which take a Box

@@ -1,9 +1,8 @@
 import os
-from pprint import pprint
 import random
 
-from gpt_util import query
-from util import json_open, json_create, json_append_dict
+from src.gpt_util import query
+from src.util import json_open, json_create, json_append_dict
 
 
 # Official script

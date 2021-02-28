@@ -3,7 +3,7 @@ import json
 
 def write_json_to_file(json_object, json_file, mode='w', encoding='utf-8'):
     with open(json_file, mode, encoding=encoding) as outfile:
-        json.dump(json_object, outfile, indent=4, sort_keys=True, ensure_ascii=False)
+        json.dump(json_object, outfile, indent=4, sort_keys=False, ensure_ascii=False)
 
 
 def get_file_contents(filename, encoding='utf-8'):
