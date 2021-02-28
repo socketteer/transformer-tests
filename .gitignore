@@ -1,6 +1,6 @@
 data/backups/
 data/
-
+*.DS_Store
 gpt_config/
 alternet/screenshots
 
