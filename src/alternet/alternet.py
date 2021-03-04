@@ -427,9 +427,11 @@ def main():
     # wiki_article(title='Wave-particle duality', img={'filename': 'waveparticle.png',
     #                                  'description': 'computer prediction of \"wave-particle duality\"'},
     #               engine='davinci')
-    wiki_article(title='IP over Avian Carriers', img={'filename': 'carrierpigeon.png',
-                                                      'description': 'computer prediction of \"carrier pigeon\"'},
-                  engine='davinci')
+    wiki_article(title='Archibald Eleuther',
+                 img={'filename': 'archibald.png',
+                                                      'description': 'Archibald Eleuther'},
+                 intro="Archibald Eleuther is the purported founder of EleutherAI",
+                 engine='davinci')
     # wiki_article(title='Paperclip maximizer', img={'filename': 'paperclip2.png',
     #                                          'description': 'computer prediction of \"an artificial intelligence manufactures an infinite number of paperclips, destroying everything\"'},
     #              engine='davinci')
