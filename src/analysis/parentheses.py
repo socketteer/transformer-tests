@@ -74,15 +74,16 @@ check_parens = """
 
 
 def main():
-    for i in range(50):
-        print(balanced(random.randint(8, 15)))
-
-
-    pprint([
-        check(parens)
-        for parens in check_parens.split("\n")
-        if parens and "#" not in parens
-    ])
+    # for i in range(50):
+    #     print(balanced(random.randint(8, 15)))
+    #
+    #
+    # pprint([
+    #     check(parens)
+    #     for parens in check_parens.split("\n")
+    #     if parens and "#" not in parens
+    # ])
+    print(check("g(g(g(x)g(x)g(g(x)g(x)))))"))
 
 
 if __name__ == "__main__":

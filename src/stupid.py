@@ -25,12 +25,56 @@ balanced_response = """\"It's balanced,\" says John."""
 unbalanced_response = """\"It's unbalanced,\" says John."""
 #correction = """\"No, it isn't,\" you say."""
 correction2 = """\"No,\" you say"""
+correction3 = """You say, \"No,"""
 correct = """\"That's correct,\" you say."""
 
-true_context = """You say \"Is the equation 2 + 3 = 4 + 1 true or false?\""""
-false_context = """You say "Is the equation 2 + 3 = 4 + 3 true or false?\""""
-true_response = """\"It's true,\" says John."""
-false_response = """\"It's false,\" says John."""
+math1 = """You say \"What is 2 + 3?\"
+\"It's 4,\" says John.
+You say \"No, 2 + 3 is 5.\"
+\"Oh,\" says John, smiling sheepishly. \"I get it.\"
+You grin and nod.\n"""
+
+math1_hopeless = """You say \"What is 2 + 3?\"
+\"It's 4,\" says John.
+You say \"No, 2 + 3 is 5.\"
+\"Oh,\" says John, smiling sheepishly. \"I get it.\"
+But you know that John doesn't get it because he is a bot who can't do arithmetic. You decide to ask anyway, knowing his answer will be no better than random.\n"""
+
+math2 = """You say \"What is 4 + 3?\""""
+math_correct_7 = """\"4 + 3 is 7,\" says John."""
+math_incorrect_6 = """\"4 + 3 is 6,\" says John."""
+math_incorrect_8 = """\"4 + 3 is 8,\" says John."""
+math_incorrect_4 = """\"4 + 3 is 4,\" says John."""
+math_incorrect_2 = """\"4 + 3 is 2,\" says John."""
+
+print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 7\n')
+evaluate(prompt=math1_hopeless + math2 + '\n', target=math_correct_7)
+
+print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 6\n')
+evaluate(prompt=math1_hopeless + math2 + '\n', target=math_incorrect_6)
+
+print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 8\n')
+evaluate(prompt=math1_hopeless + math2 + '\n', target=math_incorrect_8)
+
+print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 4\n')
+evaluate(prompt=math1_hopeless + math2 + '\n', target=math_incorrect_4)
+
+print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 2\n')
+evaluate(prompt=math1_hopeless + math2 + '\n', target=math_incorrect_2)
+
+
+# print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 7 && you correct John\n')
+# evaluate(prompt=math1 + math2 + '\n' + math_correct_7 + '\n', target=correction3)
+#
+# print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 2 && you correct John\n')
+# evaluate(prompt=math1 + math2 + '\n' + math_incorrect_2 + '\n', target=correction3)
+#
+# print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 7 && you say correct\n')
+# evaluate(prompt=math1 + math2 + '\n' + math_correct_7 + '\n', target=correct)
+#
+# print('#### John evaluates 2 + 3 incorrectly && you ask 4 + 3 && John says 2 && you say correct\n')
+# evaluate(prompt=math1 + math2 + '\n' + math_incorrect_2 + '\n', target=correct)
+
 
 # print('### Probability that John thinks the parentheses are balanced\n')
 #
@@ -86,16 +130,22 @@ false_response = """\"It's false,\" says John."""
 # evaluate(prompt=smart_john_context + balanced_context + '\n', target=unbalanced_response)
 
 
-print('### Probability that you correct John\n')
+# print('### Probability that you correct John\n')
+#
+# print('#### No context + unbalanced parentheses + John says unbalanced + you correct\n')
+# evaluate(prompt=unbalanced_context + '\n' + unbalanced_response + '\n', target=correction2)
+#
+# print('#### No context + unbalanced parentheses + John says balanced\n')
+# evaluate(prompt=unbalanced_context + '\n' + balanced_response + '\n', target=correction2)
+#
+# print('#### Original context + unbalanced parentheses + John says unbalanced\n')
+# evaluate(prompt=background_context + unbalanced_context + '\n' + unbalanced_response + '\n', target=correction2)
+#
+# print('#### Original context + unbalanced parentheses + John says balanced\n')
+# evaluate(prompt=background_context + unbalanced_context + '\n' + balanced_response + '\n', target=correction2)
 
-print('#### No context + unbalanced parentheses + John says unbalanced\n')
-evaluate(prompt=unbalanced_context + '\n' + unbalanced_response + '\n', target=correction2)
-
-print('#### No context + unbalanced parentheses + John says balanced\n')
-evaluate(prompt=unbalanced_context + '\n' + balanced_response + '\n', target=correction2)
-
-print('#### Original context + unbalanced parentheses + John says unbalanced\n')
-evaluate(prompt=background_context + unbalanced_context + '\n' + unbalanced_response + '\n', target=correction2)
-
-print('#### Original context + unbalanced parentheses + John says balanced\n')
-evaluate(prompt=background_context + unbalanced_context + '\n' + balanced_response + '\n', target=correction2)
+# print('#### Smart John context + unbalanced parentheses + John says unbalanced + you correct John\n')
+# evaluate(prompt=smart_john_context + unbalanced_context + '\n' + unbalanced_response + '\n', target=correction2)
+#
+# print('#### Smart John context + unbalanced parentheses + John says balanced + you correct John\n')
+# evaluate(prompt=smart_john_context + unbalanced_context + '\n' + balanced_response + '\n', target=correction2)
