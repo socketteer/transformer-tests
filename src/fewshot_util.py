@@ -20,8 +20,6 @@ def generate_no_verbatim(chars_per_batch=None, delimiter='\n', max_attempts=None
         prompt_length = (5000 - chars_per_batch) if chars_per_batch else 5000
         prompt_length -= len(prepend_string)
         prompt = prepend_string + prompt[-prompt_length:]
-        #print('prompt lines: ', prompt_lines)
-        print(f'prompt: ***{prompt}***')
         rsp = openai.Completion.create(
             engine=kwargs['engine'] if 'engine' in kwargs else 'curie',
             prompt=prompt,
@@ -33,11 +31,9 @@ def generate_no_verbatim(chars_per_batch=None, delimiter='\n', max_attempts=None
             stop=None if chars_per_batch else delimiter)
         attempts += 1
         rsp_text = rsp.choices[0]['text']
-        print(f'rsp_text: ***{rsp_text}***')
         rsp_text_lines = rsp_text.split(delimiter)
         if chars_per_batch:
             rsp_text_lines.pop()
-        #print('rsp_text_lines: ', rsp_text_lines)
         for line in rsp_text_lines:
             if not line.isspace():
                 if line not in prompt_lines:
