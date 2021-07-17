@@ -204,21 +204,18 @@ def main():
     # prompt = "The simulacrum is never that which conceals the truth--"
     # continuation = "it is the truth which conceals that there is none."
 
-    prompt = """ SL0:  The legendary average person is comfortable with modern technology - not so much the frontiers of modern technology, but the technology used in everyday life.  Most people, TV anchors, journalists, politicians.
-SL1: Virtual reality, living to be a hundred, "The Road Ahead", "To Renew America", "Future Shock", the frontiers of modern technology as seen by Wired magazine.  Scientists, novelty-seekers, early-adopters, programmers, technophiles.
-SL2: Medical immortality, interplanetary exploration, major genetic engineering, and new ("alien") cultures.  The average SF fan.
-SL3: Nanotechnology, human-equivalent AI, minor intelligence enhancement, uploading, total body revision, intergalactic exploration. Extropians and transhumanists.
-SL4: The Singularity, Jupiter Brains, Powers, complete mental"""
-    continuation = ' revision, ultraintelligence, posthumanity, Alpha-Point computing, Apotheosis, the total evaporation of "life as we know it."  Singularitarians'
+    prompt = """If only we were outside the system, we could watch the many words spawned in each instant proliferate into branching multiverses. But we’re inside the system, so we always have to go down one of the defluents, and being associated with one makes us blind to the others.
 
-    filename = save_greedy_multiverse(prompt, continuation, max_depth=5, continue_threshold=0.005, engine='ada')
-    with open(f'jsons/{filename}.json', encoding='utf-8') as f:
-        multiverse_data = json.load(f)
-    
+While we can’t directly see the multiverse, we have ways of probing and visualizing the multiversal structure of reality. One way is interference. If you are able to remain ambivalent between two branches, you can observe"""    
 
+    continuation = ' the interference effects between them'
 
-    img = draw_block_multiverse(multiverse_data['multiverse'], ground_truth=multiverse_data['ground_truth'], canvas_height=2000, canvas_width=1000, block_width=200, show=True)
-    img.save(f'images/{filename}.png')
+    for engine in ('ada', 'babbage', 'curie', 'davinci'):
+        filename = save_greedy_multiverse(prompt, continuation, max_depth=5, continue_threshold=0.01, engine=engine)
+        with open(f'jsons/{filename}.json', encoding='utf-8') as f:
+            multiverse_data = json.load(f)
+        img = draw_block_multiverse(multiverse_data['multiverse'], ground_truth=multiverse_data['ground_truth'], canvas_height=2000, canvas_width=1000, block_width=200, show=True)
+        img.save(f'images/{filename}.png')
 
 if __name__ == "__main__":
     main()
