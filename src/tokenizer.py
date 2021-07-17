@@ -9,6 +9,9 @@ def tokenize(input):
 def detokenize(tokens):
     return tokenizer.convert_tokens_to_string(tokens)
 
+def token_to_word(token):
+    return tokenizer.convert_ids_to_tokens([token])[0]
+
 def logit_mask(mask):
     id_mask = {}
     for token in mask:

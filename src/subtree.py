@@ -4,7 +4,8 @@ import os
 import numpy as np
 
 from gpt_util import logprobs_to_probs
-from tokenizer import tokenize
+from tokenizer import tokenize, detokenize, token_to_word
+from visualizations import draw_block_multiverse
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
@@ -148,15 +149,76 @@ def make_readable_tree(tree):
     return readable_tree
 
 
-def main():
+def greedy_word_multiverse(prompt, ground_truth='', max_depth=3, continue_threshold=0.1, unnormalized_amplitude=1, engine='ada'):
+    if isinstance(ground_truth, str):
+        ground_truth = tokenize(ground_truth)
+        ground_truth = [token_to_word(token).replace('Ġ', ' ') for token in ground_truth]
+    if max_depth == 0:
+        return {}, ground_truth
+    response = openai.Completion.create(prompt=prompt,
+                                        max_tokens=1,
+                                        n=1,
+                                        temperature=0,
+                                        logprobs=100,
+                                        engine=engine)
+    logprobs = response.choices[0]["logprobs"]["top_logprobs"][0]
+    probs = {k: logprobs_to_probs(v) for k, v in sorted(logprobs.items(), key=lambda item: item[1], reverse=True)}
+    multiverse = {token: {'normalized_prob': prob, 'unnormalized_prob': prob * unnormalized_amplitude, 'children': {}} for token, prob in probs.items()}
+    ground_truth_token = ground_truth[0] if ground_truth else 'NO GROUND TRUTH'
+    done_ground_truth = False
+    for token in multiverse.items():
+        if token[1]['unnormalized_prob'] > continue_threshold:
+            token[1]['children'], _ = greedy_word_multiverse(prompt + token[0], ground_truth='', max_depth=max_depth-1, continue_threshold=continue_threshold, unnormalized_amplitude=token[1]['unnormalized_prob'], engine=engine)
+        elif token[0] == ground_truth_token:
+            token[1]['children'], _ = greedy_word_multiverse(prompt + token[0], ground_truth=ground_truth[1:], max_depth=max_depth-1, continue_threshold=continue_threshold, unnormalized_amplitude=token[1]['unnormalized_prob'], engine=engine)
+            done_ground_truth = True
+        else:
+            break
+    if not done_ground_truth:
+        if ground_truth_token in multiverse:
+            multiverse[ground_truth_token]['children'], _ = greedy_word_multiverse(prompt + ground_truth_token, ground_truth=ground_truth[1:], max_depth=max_depth-1, continue_threshold=continue_threshold, unnormalized_amplitude=multiverse[ground_truth_token]['unnormalized_prob'], engine=engine)
+    return multiverse, ground_truth
 
-    tree = adaptive_subtree("Increasingly powerful generative language models like GPT-3 pose", depth=5,
-                            probability_threshold=.15,
-                            engine='ada')
 
-    with open('jsons/ada_adaptive_subtree.json', 'w') as outfile:
+def save_greedy_multiverse(prompt, continuation, max_depth, continue_threshold, engine='ada'):
+    tree, ground_truth = greedy_word_multiverse(prompt=prompt, ground_truth=continuation, max_depth=max_depth, continue_threshold=continue_threshold, engine=engine)
+
+    tree = {'multiverse': tree, 'ground_truth': ground_truth}
+
+    ground_truth_string = ('').join(ground_truth[:max_depth]).replace(' ', '_')
+    filename = f'multiverse_gt-"{ground_truth_string}"_d-{max_depth}_t-{continue_threshold}_m-{engine}'
+    with open(f'jsons/{filename}.json', 'w') as outfile:
         json.dump(tree, outfile)
 
+    print(filename)
+    return filename
+
+def main():
+
+    # prompt = "If only we were outside the system, we could watch the many words spawned in each instant proliferate into branching multiverses. But we’re inside the system,"
+    # continuation = ' so we always have to go down one of the defluents, and being associated with one makes us blind to the others.'
+
+    # prompt = "Abstraction today is no longer that of the map, the double, the mirror or the concept. Simulation is no longer that of a territory, a referential being or a substance. It is the generation by models of a real without origin or reality: a hyperreal. The territory no longer precedes the map, nor survives it. Henceforth, it is the map that precedes the territory - precession of simulacra - it is the map that engenders the territory and if we were to revive"
+    # continuation = " the fable today, it would be the territory whose shreds are slowly rotting across the map."
+
+    # prompt = "The simulacrum is never that which conceals the truth--"
+    # continuation = "it is the truth which conceals that there is none."
+
+    prompt = """ SL0:  The legendary average person is comfortable with modern technology - not so much the frontiers of modern technology, but the technology used in everyday life.  Most people, TV anchors, journalists, politicians.
+SL1: Virtual reality, living to be a hundred, "The Road Ahead", "To Renew America", "Future Shock", the frontiers of modern technology as seen by Wired magazine.  Scientists, novelty-seekers, early-adopters, programmers, technophiles.
+SL2: Medical immortality, interplanetary exploration, major genetic engineering, and new ("alien") cultures.  The average SF fan.
+SL3: Nanotechnology, human-equivalent AI, minor intelligence enhancement, uploading, total body revision, intergalactic exploration. Extropians and transhumanists.
+SL4: The Singularity, Jupiter Brains, Powers, complete mental"""
+    continuation = ' revision, ultraintelligence, posthumanity, Alpha-Point computing, Apotheosis, the total evaporation of "life as we know it."  Singularitarians'
+
+    filename = save_greedy_multiverse(prompt, continuation, max_depth=5, continue_threshold=0.005, engine='ada')
+    with open(f'jsons/{filename}.json', encoding='utf-8') as f:
+        multiverse_data = json.load(f)
+    
+
+
+    img = draw_block_multiverse(multiverse_data['multiverse'], ground_truth=multiverse_data['ground_truth'], canvas_height=2000, canvas_width=1000, block_width=200, show=True)
+    img.save(f'images/{filename}.png')
 
 if __name__ == "__main__":
     main()
